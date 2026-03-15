@@ -1,0 +1,222 @@
+---
+title: Testing and benchmarks
+description: How to build and run Chatterino7's unit tests and benchmarks, and how to add new ones.
+---
+
+Chatterino7 includes a suite of unit tests (powered by [GoogleTest](https://github.com/google/googletest)) and microbenchmarks (powered by [Google Benchmark](https://github.com/google/benchmark)). Both are off by default and must be enabled at CMake configure time.
+
+## Test structure
+
+Tests live in the `tests/` directory:
+
+```
+tests/
+├── CMakeLists.txt       # Test build configuration
+├── docker-compose.yml   # Helper services for integration tests
+├── README.md
+├── resources/           # Test fixtures and assets
+├── snapshots/           # Snapshot JSON files for message-building tests
+├── lua/                 # Lua plugin test files
+└── src/                 # Test source files
+    ├── main.cpp
+    ├── Emojis.cpp
+    ├── IrcMessageHandler.cpp
+    ├── NetworkRequest.cpp
+    ├── TwitchChannel.cpp
+    └── ...              # One file per component under test
+```
+
+Each test file corresponds to a source file in `src/`. For example, `tests/src/Emojis.cpp` tests `src/providers/emoji/Emojis.cpp`.
+
+Benchmarks follow the same convention under the `benchmarks/` directory.
+
+## Prerequisites
+
+Some tests require external helper services to be running:
+
+| Service | Default port | Purpose |
+| --- | --- | --- |
+| [httpbox](https://github.com/Chatterino/httpbox/releases/latest) | 9051 | HTTP request tests |
+| [twitch-pubsub-server-test](https://github.com/Chatterino/twitch-pubsub-server-test/releases/latest) | 9050 | PubSub tests |
+
+The easiest way to start both services is with Docker Compose:
+
+```bash
+docker compose up
+```
+
+Run this from the `tests/` directory before running the test binary.
+
+## Building and running tests
+
+<Steps>
+  <Step title="Configure with tests enabled">
+    ```bash
+    mkdir build-tests
+    cmake -DBUILD_TESTS=On -B build-tests
+    ```
+  </Step>
+  <Step title="Build">
+    ```bash
+    cmake --build build-tests
+    ```
+  </Step>
+  <Step title="Run the tests">
+    <CodeGroup>
+
+    ```bash ctest
+    cd build-tests
+    ctest --output-on-failure
+    ```
+
+    ```bash Direct binary
+    ./build-tests/bin/chatterino-test
+    ```
+
+    </CodeGroup>
+  </Step>
+</Steps>
+
+### Example output
+
+```
+[==========] Running 26 tests from 8 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from AccessGuardLocker
+[ RUN      ] AccessGuardLocker.NonConcurrentUsage
+[       OK ] AccessGuardLocker.NonConcurrentUsage (0 ms)
+[ RUN      ] AccessGuardLocker.ConcurrentUsage
+[       OK ] AccessGuardLocker.ConcurrentUsage (686 ms)
+[----------] 2 tests from AccessGuardLocker (686 ms total)
+
+[----------] 4 tests from NetworkCommon
+[ RUN      ] NetworkCommon.parseHeaderList1
+[       OK ] NetworkCommon.parseHeaderList1 (0 ms)
+...
+[==========] 26 tests from 8 test suites ran. (10297 ms total)
+[  PASSED  ] 26 tests.
+```
+
+## CMake test options
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `BUILD_TESTS` | `OFF` | Build the unit test binary |
+| `BUILD_BENCHMARKS` | `OFF` | Build the benchmark binary |
+| `CHATTERINO_SANITIZER_SUPPORT` | `OFF` | Enable sanitizer support on test and app targets |
+| `CHATTERINO_GENERATE_COVERAGE` | `OFF` | Generate code coverage data |
+
+To enable sanitizers, first set `CHATTERINO_SANITIZER_SUPPORT=ON`, then enable individual sanitizers with the `SANITIZE_*` CMake options.
+
+## Adding a new test
+
+<Steps>
+  <Step title="Create the test file">
+    Create a new file under `tests/src/` matching the name of the source file you are testing. For example, to test `src/providers/emoji/Emojis.cpp`, create `tests/src/Emojis.cpp`.
+
+    Use `tests/src/Emojis.cpp` as a reference for simple test structure.
+  </Step>
+  <Step title="Register the file in CMakeLists.txt">
+    Add your new file to the `test_SOURCES` variable in `tests/CMakeLists.txt`. See the comment near that variable for guidance.
+  </Step>
+  <Step title="Write the tests">
+    Use the [GoogleTest primer](http://google.github.io/googletest/primer.html) to learn the API. A minimal test looks like this:
+
+    ```cpp
+    #include "providers/emoji/Emojis.hpp"
+
+    #include <gtest/gtest.h>
+
+    TEST(Emojis, ShortcodeParsing)
+    {
+        // arrange
+        Emojis emojis;
+        emojis.load();
+
+        // act + assert
+        EXPECT_FALSE(emojis.getEmoji(u"smile"_s).has_value());
+    }
+    ```
+  </Step>
+</Steps>
+
+## Snapshot tests
+
+Tests for message building use snapshot files stored in `tests/snapshots/`. When you make a change that affects how messages are rendered, existing snapshot tests will fail.
+
+<Steps>
+  <Step title="Enable snapshot updates">
+    Open `tests/src/IrcMessageHandler.cpp` and set the `UPDATE_SNAPSHOTS` boolean at the top of the file to `true`.
+  </Step>
+  <Step title="Run the tests">
+    Run the tests. This regenerates the snapshot JSON files to match your changes.
+  </Step>
+  <Step title="Reset the flag">
+    Set `UPDATE_SNAPSHOTS` back to `false`.
+  </Step>
+  <Step title="Run the tests again">
+    Run a final time to confirm the updated snapshots pass. Review the diff in the snapshot files to make sure the changes look correct.
+  </Step>
+</Steps>
+
+<Warning>
+  Do not commit snapshot files with `UPDATE_SNAPSHOTS` set to `true`. The flag must be `false` before opening a pull request.
+</Warning>
+
+## Building and running benchmarks
+
+<Steps>
+  <Step title="Configure with benchmarks enabled">
+    ```bash
+    mkdir build-benchmarks
+    cmake -DBUILD_BENCHMARKS=On -B build-benchmarks
+    ```
+  </Step>
+  <Step title="Build">
+    ```bash
+    cmake --build build-benchmarks
+    ```
+  </Step>
+  <Step title="Run the benchmarks">
+    ```bash
+    ./build-benchmarks/bin/chatterino-benchmark
+    ```
+  </Step>
+</Steps>
+
+### Example output
+
+```
+2021-07-18T13:12:11+02:00
+Running ./bin/chatterino-benchmark
+Run on (12 X 4000 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x6)
+  L1 Instruction 32 KiB (x6)
+  L2 Unified 256 KiB (x6)
+  L3 Unified 15360 KiB (x1)
+Load Average: 2.86, 3.08, 3.51
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements
+may be noisy and will incur extra overhead.
+--------------------------------------------------------------
+Benchmark                    Time             CPU   Iterations
+--------------------------------------------------------------
+BM_ShortcodeParsing       2394 ns         2389 ns       278933
+```
+
+<Tip>
+  For more reliable benchmark results, disable CPU frequency scaling before running. On Linux, use `cpupower frequency-set --governor performance` (requires root).
+</Tip>
+
+## Adding a new benchmark
+
+<Steps>
+  <Step title="Create the benchmark file">
+    Create a file under `benchmarks/src/` matching the source file you are benchmarking. For example, for `src/providers/emoji/Emojis.cpp`, create `benchmarks/src/Emojis.cpp`.
+
+    Use `benchmarks/src/Emojis.cpp` as a reference.
+  </Step>
+  <Step title="Register the file in CMakeLists.txt">
+    Add your new file to the `benchmark_SOURCES` variable in `benchmarks/CMakeLists.txt`.
+  </Step>
+</Steps>

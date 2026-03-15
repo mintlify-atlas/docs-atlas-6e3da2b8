@@ -1,0 +1,50 @@
+---
+title: "macOS"
+description: "Install Chatterino7 on macOS. A universal app binary supports both Intel and Apple Silicon Macs."
+---
+
+## Requirements
+
+- macOS 13.0 Ventura or later
+- Intel or Apple Silicon processor (the provided binary is universal)
+
+## Download
+
+<Card title="Download Chatterino7 for macOS" icon="apple" href="https://github.com/SevenTV/chatterino7/releases/latest">
+  The universal `.dmg` or `.app` archive is on the GitHub releases page.
+</Card>
+
+The release is a **universal binary** — a single download runs natively on both Intel Macs and Apple Silicon (M-series) Macs. You do not need to choose between separate builds.
+
+## Installation
+
+<Steps>
+  <Step title="Download the release">
+    Go to the [releases page](https://github.com/SevenTV/chatterino7/releases/latest) and download the macOS archive (`.dmg` or `.zip`).
+  </Step>
+  <Step title="Open the archive">
+    Double-click the downloaded file. If it is a `.dmg`, drag Chatterino7 into your **Applications** folder.
+  </Step>
+  <Step title="Launch Chatterino7">
+    Open Chatterino7 from your Applications folder or Launchpad.
+  </Step>
+  <Step title="Bypass Gatekeeper if prompted">
+    Because Chatterino7 is distributed outside the Mac App Store, macOS may display a warning that it cannot verify the developer. To open it:
+
+    1. Go to **System Settings → Privacy & Security**.
+    2. Scroll down to the Security section and click **Open Anyway** next to the Chatterino7 entry.
+    3. Confirm by clicking **Open** in the dialog.
+
+    You only need to do this once.
+  </Step>
+  <Step title="Add your Twitch account">
+    Go to **File → Settings → Accounts** and click **Add account** to authenticate with Twitch.
+  </Step>
+  <Step title="Open a channel">
+    Click the **+** button in the split area, or go to **View → Open channel** and enter a channel name.
+  </Step>
+</Steps>
+
+<Note>
+  If you are on macOS 12 Monterey or earlier, you must [build Chatterino7 from source](/building/macos). The minimum supported version for prebuilt releases is macOS 13.0 Ventura.
+</Note>

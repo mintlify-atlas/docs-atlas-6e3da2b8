@@ -1,0 +1,55 @@
+---
+title: "Building on FreeBSD"
+description: "Build Chatterino7 from source on FreeBSD 14.0-RELEASE using pkg and CMake."
+---
+
+Chatterino7 on FreeBSD must be built from source. There are no prebuilt binaries.
+
+This guide is verified to work on FreeBSD 14.0-RELEASE (amd64). It is also expected to work on older FreeBSD releases, other architectures, and FreeBSD 15.0-SNAP.
+
+<Note>
+  The minimum supported Qt version on FreeBSD is Qt 6.6.0.
+</Note>
+
+## Install dependencies
+
+Install the required packages from the FreeBSD package repository (or build from the ports tree):
+
+```sh
+pkg install boost-libs git libnotify qt6-base qt6-svg qt6-imageformats qtkeychain-qt6 cmake
+```
+
+## Build
+
+<Steps>
+  <Step title="Clone the repository">
+    ```sh
+    git clone --recurse-submodules https://github.com/SevenTV/chatterino7.git
+    cd chatterino7
+    ```
+  </Step>
+  <Step title="Create a build directory">
+    ```sh
+    mkdir build
+    cd build
+    ```
+  </Step>
+  <Step title="Generate build files">
+    ```sh
+    cmake ..
+    ```
+
+    <Note>
+      To enable Lua plugins, add `-DCHATTERINO_PLUGINS=ON` to this command.
+    </Note>
+
+    <Tip>
+      JSON generation for EventSub blobs can be slow due to Python processing. If you want a faster build, add `-DSKIP_JSON_GENERATION=On` to skip this step.
+    </Tip>
+  </Step>
+  <Step title="Build the project">
+    ```sh
+    make
+    ```
+  </Step>
+</Steps>

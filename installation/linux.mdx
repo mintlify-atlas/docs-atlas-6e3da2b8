@@ -1,0 +1,58 @@
+---
+title: "Linux"
+description: "Install Chatterino7 on Linux using the AppImage, or build from source for your distribution."
+---
+
+## AppImage
+
+The easiest way to run Chatterino7 on Linux is the AppImage, which works on most distributions without any additional dependencies.
+
+<Card title="Download Chatterino7 AppImage" icon="linux" href="https://github.com/SevenTV/chatterino7/releases/latest">
+  Download the `.AppImage` file from the GitHub releases page.
+</Card>
+
+<Steps>
+  <Step title="Download the AppImage">
+    Go to the [releases page](https://github.com/SevenTV/chatterino7/releases/latest) and download the `.AppImage` file.
+  </Step>
+  <Step title="Make it executable">
+    ```bash
+    chmod +x chatterino7-*.AppImage
+    ```
+  </Step>
+  <Step title="Run Chatterino7">
+    ```bash
+    ./chatterino7-*.AppImage
+    ```
+
+    You can also double-click the AppImage in your file manager if your desktop environment supports it.
+  </Step>
+</Steps>
+
+## AVIF support
+
+The AppImage includes AVIF image support. If you build from source or use a distribution package that does not bundle `libavif`, you can still get AVIF support by installing `qavif.so` from [kimageformats](https://invent.kde.org/frameworks/kimageformats) on your system. Chatterino7 will detect and use it automatically.
+
+If `qavif.so` is not available, you can disable the AVIF plugin at build time with `-DCHATTERINO_NO_AVIF_PLUGIN=ON`. See the [building overview](/building/overview) for details.
+
+## Distribution packages
+
+Chatterino7 is not currently packaged in most distribution repositories. To get a package that integrates with your package manager, you must [build from source](/building/linux).
+
+<Note>
+  The Arch Linux AUR provides a [chatterino2-git](https://aur.archlinux.org/packages/chatterino2-git/) package for the upstream project. A Chatterino7-specific AUR package is not officially maintained.
+</Note>
+
+## First-launch setup
+
+<Steps>
+  <Step title="Launch Chatterino7">
+    Run the AppImage or your built binary.
+  </Step>
+  <Step title="Add your Twitch account">
+    Go to **File → Settings → Accounts** and click **Add account** to authenticate with Twitch.
+  </Step>
+  <Step title="Open a channel">
+    Click the **+** button in the split area, or go to **View → Open channel** and enter a channel name.
+  </Step>
+</Steps>

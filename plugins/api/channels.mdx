@@ -1,0 +1,316 @@
+---
+title: "Channel API"
+description: "Find, inspect, and interact with open channel splits from a Chatterino7 plugin."
+---
+
+The `c2.Channel` type represents an open channel split. You can find channels by name or Twitch user ID, send messages, add system or rich messages, and query the message history.
+
+<Warning>
+  A `Channel` object does not keep the channel open. If the user closes the last split for that channel, the object expires. Always check `channel:is_valid()` before using a channel object stored across function calls.
+</Warning>
+
+## Finding channels
+
+### `c2.Channel.by_name(name)`
+
+Finds an open channel by its name. Returns the `Channel` object, or `nil` if no matching channel is currently open.
+
+<ParamField path="name" type="string" required>
+  The channel name to search for. On Twitch this is the lowercase login name. The following special channels are also accessible by name: `/whispers`, `/mentions`, `/watching`, `/live`, `/automod`.
+</ParamField>
+
+```lua
+local pajladas = c2.Channel.by_name("pajlada")
+```
+
+### `c2.Channel.by_twitch_id(id)`
+
+Finds an open channel by the Twitch user ID of its owner. Returns the `Channel` object, or `nil` if not open.
+
+<ParamField path="id" type="string" required>
+  The Twitch user ID as a string.
+</ParamField>
+
+```lua
+local pajladas = c2.Channel.by_twitch_id("11148817")
+```
+
+## Channel methods
+
+### `Channel:is_valid()`
+
+Returns `true` if the channel is still open. Returns `false` if the user closed all splits for this channel. All other methods produce an error on an expired channel.
+
+### `Channel:get_name()`
+
+Returns the lowercase login name of the channel owner on Twitch, or the normalized channel name on IRC.
+
+```lua
+pajladas:get_name()  -- "pajlada"
+```
+
+### `Channel:get_type()`
+
+Returns the channel type as a [`c2.ChannelType`](#c2channeltype-enum) value.
+
+### `Channel:get_display_name()`
+
+Returns the channel owner's display name. This may include uppercase or non-ASCII characters.
+
+```lua
+local saddummys = c2.Channel.by_name("saddummy")
+saddummys:get_display_name()  -- "\237\132\156\49..." (Korean characters)
+```
+
+### `Channel:on_display_name_changed(cb)`
+
+Registers a callback that fires when the channel's display name changes. The callback receives no arguments; use `Channel:get_display_name()` inside it to read the updated name.
+
+Returns a [`ConnectionHandle`](#connectionhandle) for managing the subscription.
+
+<ParamField path="cb" type="function" required>
+  A function with no parameters.
+</ParamField>
+
+### `Channel:send_message(message[, execute_commands])`
+
+Sends a message to the channel. When `execute_commands` is `false` or omitted, client-side commands (except `/me`) are not executed.
+
+<ParamField path="message" type="string" required>
+  The message text to send.
+</ParamField>
+
+<ParamField path="execute_commands" type="boolean">
+  When `true`, client-side commands are executed. Defaults to `false`.
+</ParamField>
+
+```lua
+-- Times out @Mm2PL (execute_commands = true runs the /timeout command)
+pajladas:send_message("/timeout mm2pl 1s test", true)
+
+-- Results in a "Unknown command" error from Twitch
+pajladas:send_message("/timeout mm2pl 1s test")
+
+-- Executes a user command called "hello"
+pajladas:send_message("hello", true)
+
+-- Sends the literal text "hello", bypassing commands
+pajladas:send_message("hello")
+```
+
+### `Channel:add_system_message(message)`
+
+Displays a system message in the channel client-side. The message is not sent to Twitch.
+
+<ParamField path="message" type="string" required>
+  The system message text.
+</ParamField>
+
+```lua
+pajladas:add_system_message("Hello, world!")
+```
+
+### `Channel:add_message(message[, context[, override_flags]])`
+
+Adds a rich `Message` object to the channel client-side. See [`c2.Message.new`](/plugins/api/messages) for how to construct a message.
+
+<ParamField path="message" type="Message" required>
+  The message to add. Create one with `c2.Message.new()`.
+</ParamField>
+
+<ParamField path="context" type="c2.MessageContext">
+  Optional. One of `c2.MessageContext.Original` or `c2.MessageContext.Repost`.
+</ParamField>
+
+<ParamField path="override_flags" type="c2.MessageFlag | nil">
+  Optional. Override the message flags for filtering purposes.
+</ParamField>
+
+```lua
+channel:add_message(c2.Message.new({
+    id = "myplugin-1234",
+    elements = {
+        {
+            type = "text",
+            text = "Hello, World!",
+        }
+    }
+}))
+```
+
+### `Channel:message_snapshot(n_items)`
+
+Returns a snapshot of up to `n_items` recent messages, starting from the most recent. The actual count may be lower if the channel has fewer messages.
+
+<ParamField path="n_items" type="number" required>
+  Maximum number of messages to retrieve.
+</ParamField>
+
+### `Channel:last_message()`
+
+Returns the most recent `Message` in the channel, or `nil` if the channel has no messages.
+
+### `Channel:replace_message(message, replacement[, hint])`
+
+Replaces a specific `Message` with `replacement`. The optional `hint` is a one-based index where the message is likely located (checked first for performance).
+
+<ParamField path="message" type="Message" required>
+  The message to replace.
+</ParamField>
+
+<ParamField path="replacement" type="Message" required>
+  The replacement message.
+</ParamField>
+
+<ParamField path="hint" type="number">
+  One-based index where the message is probably located.
+</ParamField>
+
+### `Channel:replace_message_at(index, replacement)`
+
+Replaces the message at a one-based `index`.
+
+<ParamField path="index" type="number" required>
+  One-based index of the message to replace.
+</ParamField>
+
+<ParamField path="replacement" type="Message" required>
+  The replacement message.
+</ParamField>
+
+### `Channel:clear_messages()`
+
+Removes all messages from the channel client-side.
+
+### `Channel:find_message_by_id(id)`
+
+Searches for a message by its ID string. Returns the `Message` or `nil` if not found.
+
+<ParamField path="id" type="string" required>
+  The message ID to search for.
+</ParamField>
+
+### `Channel:has_messages()`
+
+Returns `true` if the channel contains at least one message.
+
+### `Channel:count_messages()`
+
+Returns the number of messages currently in the channel.
+
+## Twitch-specific methods
+
+These methods are only valid on actual Twitch channel splits. They produce an error on non-Twitch channels and on special channels like `/mentions`. Use `channel:get_type() == c2.ChannelType.Twitch` to check before calling them.
+
+### `Channel:is_twitch_channel()`
+
+Returns `true` if the channel type has the `Twitch` prefix. This includes special channels like `/mentions`. Use `get_type()` for a precise type check.
+
+### `Channel:get_twitch_id()`
+
+Returns the Twitch user ID of the channel owner as a string.
+
+```lua
+pajladas:get_twitch_id()  -- "11148817"
+```
+
+### `Channel:is_broadcaster()`
+
+Returns `true` if the channel is owned by the currently logged-in account.
+
+### `Channel:is_mod()`
+
+Returns `true` if the current user is a moderator in this channel. Returns `false` for the broadcaster.
+
+### `Channel:is_vip()`
+
+Returns `true` if the current user is a VIP in this channel. Returns `false` for the broadcaster.
+
+## `c2.ChannelType` enum
+
+The values behind each name may change — always use the named constants.
+
+| Value | Description |
+|-------|-------------|
+| `c2.ChannelType.None` | No type |
+| `c2.ChannelType.Direct` | Direct channel |
+| `c2.ChannelType.Twitch` | A real Twitch chat room |
+| `c2.ChannelType.TwitchWhispers` | The `/whispers` special channel |
+| `c2.ChannelType.TwitchWatching` | The `/watching` special channel |
+| `c2.ChannelType.TwitchMentions` | The `/mentions` special channel |
+| `c2.ChannelType.TwitchLive` | The `/live` special channel |
+| `c2.ChannelType.TwitchAutomod` | The `/automod` special channel |
+| `c2.ChannelType.TwitchEnd` | Internal sentinel value |
+| `c2.ChannelType.Irc` | An IRC channel |
+| `c2.ChannelType.Misc` | Miscellaneous channel |
+
+## Current account
+
+### `c2.current_account()`
+
+Returns a `TwitchAccount` representing the currently logged-in Twitch account. The account may be anonymous if no user is logged in.
+
+```lua
+local acc = c2.current_account()
+print(acc:is_valid())  -- true unless the user removed the account
+```
+
+## `TwitchAccount`
+
+Represents a Twitch account. An account object can become invalid if the user removes the account in settings. Using an invalid account produces an error.
+
+### `TwitchAccount:is_valid()`
+
+Returns `true` if the account is still valid.
+
+### `TwitchAccount:login()`
+
+Returns the login name of the account. Contains only lowercase ASCII.
+
+```lua
+print(acc:login())  -- "mm2pl"
+```
+
+### `TwitchAccount:id()`
+
+Returns the Twitch user ID of the account as a string.
+
+```lua
+print(acc:id())  -- "117691339"
+```
+
+### `TwitchAccount:color()`
+
+Returns the account's chat color as a hex string, or `nil` if the user has not sent any messages yet.
+
+```lua
+print(acc:color())  -- "#ffdaa520"
+```
+
+### `TwitchAccount:is_anon()`
+
+Returns `true` if this is an anonymous account with no associated Twitch user.
+
+## `ConnectionHandle`
+
+Returned by event registration functions such as `Channel:on_display_name_changed()`. Does not automatically disconnect when garbage-collected — call `disconnect()` explicitly when done.
+
+### `ConnectionHandle:disconnect()`
+
+Disconnects the signal. The callback will no longer be called.
+
+### `ConnectionHandle:block()`
+
+Temporarily blocks events on this connection without disconnecting it.
+
+### `ConnectionHandle:unblock()`
+
+Unblocks a previously blocked connection.
+
+### `ConnectionHandle:is_blocked()`
+
+Returns `true` if this connection is currently blocked.
+
+### `ConnectionHandle:is_connected()`
+
+Returns `true` if this connection is still active.

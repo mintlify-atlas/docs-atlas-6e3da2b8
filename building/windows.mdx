@@ -1,0 +1,209 @@
+---
+title: "Building on Windows"
+description: "Build Chatterino7 on Windows using CMake with Conan 2 (recommended) or vcpkg."
+---
+
+<Tabs>
+  <Tab title="CMake + Conan (recommended)">
+
+## Prerequisites
+
+<Warning>
+  Installing all development prerequisites and libraries requires about **12 GB** of free disk space on your `C:` drive. Ensure this space is available before proceeding.
+</Warning>
+
+This guide targets 64-bit systems with Visual Studio 2022.
+
+### Visual Studio 2022
+
+1. Download and install [Visual Studio 2022 Community](https://visualstudio.microsoft.com/downloads/).
+2. In the installer, select **Desktop development with C++**.
+
+<Note>
+  The Visual Studio installation takes about 8 GB. You do not need to sign in with a Microsoft account after setup completes.
+</Note>
+
+### Qt
+
+<Steps>
+  <Step title="Download the Qt Online Installer">
+    Visit the [Qt Open Source Page](https://www.qt.io/download-open-source), scroll to the bottom, and click **Download the Qt Online Installer**. Qt will prompt you to create a free account.
+  </Step>
+  <Step title="Select components">
+    When prompted which components to install:
+
+    1. Expand the **Qt** tree and open the latest stable version (e.g., `Qt 6.5.3`).
+    2. Select:
+       - `MSVC 2019 64-bit` (or `MSVC 2022 64-bit` for Qt 6.8 and later)
+       - **Additional Libraries → Qt Image Formats**
+    3. Under **Tools**, ensure `Qt Creator` and `Debugging Tools for Windows` are checked.
+
+    <Note>This installation takes about 2 GB.</Note>
+  </Step>
+  <Step title="Add Qt to PATH">
+    Add the Qt `bin` directory to your `PATH` (e.g., `C:\Qt\6.5.3\msvc2019_64\bin`):
+
+    1. Type `path` in the Windows Start menu and open **Edit the system environment variables**.
+    2. Click **Environment Variables**.
+    3. Under **User variables**, find `Path` and double-click it.
+    4. Click **New** and paste the Qt `bin` path.
+    5. Click **OK**.
+  </Step>
+</Steps>
+
+### Conan 2
+
+1. Download and install [Conan 2](https://conan.io/downloads.html). Keep the default option to add it to your `PATH`.
+2. Open a terminal and generate a default Conan profile:
+
+   ```cmd
+   conan profile detect
+   ```
+
+## Building
+
+Open the **x64 Native Tools Command Prompt for VS 2022** (not a regular terminal), navigate to the cloned Chatterino7 directory, and run:
+
+```cmd
+mkdir build
+cd build
+conan install .. -s build_type=Release -c tools.cmake.cmaketoolchain:generator="NMake Makefiles" --build=missing --output-folder=.
+cmake -G"NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_PREFIX_PATH="C:\Qt\6.5.3\msvc2019_64" ..
+nmake
+```
+
+Replace `C:\Qt\6.5.3\msvc2019_64` with the path to your Qt installation.
+
+<Note>
+  To enable Lua plugins, add `-DCHATTERINO_PLUGINS=ON` to the `cmake` command.
+</Note>
+
+To build a **debug build**, add `-s compiler.runtime_type=Debug` to the `conan install` invocation.
+
+## Deploying Qt libraries
+
+After building, run `windeployqt` from the build directory to copy the required Qt DLLs:
+
+```cmd
+windeployqt bin/chatterino.exe --release --no-compiler-runtime --no-translations --no-opengl-sw --dir bin/
+```
+
+If `windeployqt` is not found, your Qt `bin` directory is not in your `PATH`.
+
+  </Tab>
+  <Tab title="CMake + vcpkg">
+
+## Prerequisites
+
+<Warning>
+  This method requires more than **30 GB** of free disk space.
+</Warning>
+
+1. Install [Visual Studio](https://visualstudio.microsoft.com/) with **Desktop development with C++**.
+2. Install [CMake](https://cmake.org/).
+3. Install [Git](https://git-scm.com/).
+4. Install vcpkg:
+
+   ```shell
+   git clone https://github.com/Microsoft/vcpkg.git
+   cd vcpkg
+   .\bootstrap-vcpkg.bat
+   .\vcpkg integrate install
+   .\vcpkg integrate powershell
+   cd ..
+   ```
+
+5. Set the required environment variables:
+
+   ```cmd
+   setx VCPKG_DEFAULT_TRIPLET x64-windows
+   setx VCPKG_ROOT <path to vcpkg>
+   setx PATH "%PATH%;<path to vcpkg>"
+   ```
+
+   <Note>
+     Restart your computer after setting environment variables to ensure they are loaded system-wide.
+   </Note>
+
+## Building
+
+<Steps>
+  <Step title="Clone the repository">
+    ```shell
+    git clone --recurse-submodules https://github.com/SevenTV/chatterino7.git
+    ```
+  </Step>
+  <Step title="Install dependencies with vcpkg">
+    ```powershell
+    cd .\chatterino7\
+    vcpkg install
+    ```
+  </Step>
+  <Step title="Configure and build">
+    ```powershell
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE="$Env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+    cd build
+    cmake --build . --parallel <threads> --config Release
+    ```
+
+    When using CMD instead of PowerShell, use `-DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake`.
+
+    <Note>
+      To enable Lua plugins, add `-DCHATTERINO_PLUGINS=ON` to the `cmake -B build` command.
+    </Note>
+  </Step>
+  <Step title="Run Chatterino7">
+    ```powershell
+    .\bin\chatterino.exe
+    ```
+  </Step>
+</Steps>
+
+  </Tab>
+</Tabs>
+
+## Developing in Qt Creator
+
+1. Open `CMakeLists.txt` in Qt Creator (double-click or use **File → Open**).
+2. On the **Configure Project** screen, select the kit(s) you want to build with and click **Configure Project**.
+3. Click the green play button at the bottom left to build and run, or the hammer icon to build only.
+
+Build output is placed in a directory next to your source folder, for example:
+`C:\Users\example\src\build-chatterino-Desktop_Qt_6.5.3_MSVC2019_64bit-Release`
+
+<Note>
+  For a release build (recommended for regular use), click the **PC** icon above the play button and select **Release**.
+</Note>
+
+## Developing in CLion
+
+<Steps>
+  <Step title="Prepare Conan dependencies">
+    Open a terminal in the cloned folder and run:
+
+    ```cmd
+    mkdir build && cd build
+    conan install .. -s build_type=Debug
+    ```
+  </Step>
+  <Step title="Configure CLion CMake settings">
+    Open the project in CLion. In the **Open Project Wizard**, set:
+
+    - **CMake Options**:
+      ```text
+      -DCMAKE_PREFIX_PATH=C:\Qt\6.5.3\msvc2019_64\lib\cmake\Qt6
+      -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
+      ```
+    - **Build Directory**: `build`
+  </Step>
+  <Step title="Configure windeployqt as a pre-launch task">
+    Open **Run/Debug Configurations**, select the `CMake Applications > chatterino` configuration, and add a **Run External tool** task under **Before launch**:
+
+    - **Program**: `C:\Qt\6.5.3\msvc2019_64\bin\windeployqt.exe`
+    - **Arguments**: `$CMakeCurrentProductFile$ --debug --no-compiler-runtime --no-translations --no-opengl-sw --dir bin/`
+    - **Working directory**: `$ProjectFileDir$\build`
+  </Step>
+  <Step title="Run the configuration">
+    Run the `chatterino | Debug` configuration.
+  </Step>
+</Steps>

@@ -1,0 +1,111 @@
+---
+title: "Ignores"
+description: "Hide messages from specific users or replace message content matching patterns using Chatterino7's ignore system."
+---
+
+Chatterino7's ignore system has two independent parts: **user ignores** (hide all messages from a specific Twitch account) and **message phrase ignores** (hide or replace messages containing certain text). Both are configured in **Settings → Ignores**.
+
+## User ignores
+
+User ignores are sourced from your **Twitch block list**. When you block a user on Twitch (via `/block <user>` or the Twitch website), Chatterino7 automatically suppresses their messages.
+
+### Viewing blocked messages
+
+By default, messages from blocked users are hidden entirely. You can change this in **Settings → Ignores → Users**:
+
+| Setting | Behavior |
+|---|---|
+| **Never** | Always hide messages from blocked users (default). |
+| **If moderator** | Show messages if you are a moderator in that channel. |
+| **If broadcaster** | Show messages only if you are the broadcaster. |
+
+### Blocking and unblocking from chat
+
+You can block a user directly from the input box:
+
+```text
+/block <username>     — block the user and suppress their messages
+/unblock <username>   — unblock the user
+```
+
+Blocking a user updates your Twitch block list and takes effect immediately in all open splits.
+
+<Note>
+Twitch block lists are account-specific. If you switch accounts in Chatterino7, the block list changes to reflect the new account.
+</Note>
+
+## Message phrase ignores
+
+Phrase ignores let you match message content and either **block the message entirely** or **replace the matched text** with a substitute string.
+
+Configure phrase ignores in **Settings → Ignores → Messages**.
+
+### Ignore phrase options
+
+Each phrase ignore rule has the following fields:
+
+| Field | Description |
+|---|---|
+| **Pattern** | The text to match. Plain string or regular expression. |
+| **Regex** | When enabled, the pattern is a regular expression. |
+| **Case sensitive** | Whether to match case-sensitively. |
+| **Block** | When enabled, matching messages are hidden entirely. When disabled, the matched text is replaced. |
+| **Replace with** | The replacement text used when **Block** is off. Defaults to `***`. |
+
+### Blocking messages
+
+Enable **Block** on a rule to completely hide any message that contains the pattern. The message will not appear in any split, though it is still received internally.
+
+```text
+Pattern: badword
+Block: yes
+```
+
+Any message containing the exact string `badword` (case-insensitive unless **Case sensitive** is enabled) will be suppressed.
+
+### Replacing text
+
+Disable **Block** to keep the message visible but replace the matched text.
+
+```text
+Pattern: specificlink\.com
+Regex: yes
+Block: no
+Replace with: [link removed]
+```
+
+Messages containing `specificlink.com` will appear with that text replaced by `[link removed]`.
+
+### Regex capturing groups in replacements
+
+When the pattern is a regular expression with capturing groups, you can reference captures in the replacement string using `\1`, `\2`, etc.:
+
+```text
+Pattern:  (\w+) said: (.+)
+Replace:  \1: \2
+```
+
+This rewrites `username said: some message` to `username: some message`.
+
+<Warning>
+Phrase ignore replacements are applied before emotes are rendered. If a replacement removes or changes an emote name, the emote will not appear.
+</Warning>
+
+### Performance limit
+
+Chatterino7 applies a maximum of 128 replacement iterations per message per rule. If a replacement introduces new matches, it stops at 128 to prevent runaway loops, and the message is replaced with:
+
+```text
+Too many replacements - check your ignores!
+```
+
+## Difference between ignores and filters
+
+| Feature | Ignores | Filters |
+|---|---|---|
+| Scope | Global (all splits) | Per-split |
+| Effect | Hides or replaces content | Shows/hides messages |
+| Affects logging | Yes (blocked messages are not logged) | No |
+| Reversible per view | No | Yes |
+
+Use ignores when you want content permanently removed from view everywhere. Use [filters](/features/filters) when you want to temporarily focus one split on specific messages without affecting other splits.

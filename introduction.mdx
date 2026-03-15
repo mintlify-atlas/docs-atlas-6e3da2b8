@@ -1,0 +1,73 @@
+---
+title: "Introduction"
+description: "Chatterino7 is a Twitch chat client with native 7TV cosmetics support — name paints, personal emotes, animated avatars, and more."
+---
+
+Chatterino7 is a fork of [Chatterino2](https://github.com/Chatterino/chatterino2), the popular desktop chat client for Twitch. It adds exclusive features for [7TV](https://7tv.app) subscribers that aren't accepted into the upstream project, while tracking all improvements from Chatterino2.
+
+<CardGroup cols={2}>
+  <Card title="Download" icon="download" href="/installation/windows">
+    Get Chatterino7 for Windows, macOS, Linux, or FreeBSD.
+  </Card>
+  <Card title="What's new" icon="sparkles" href="/whats-new">
+    See the latest versions and changes.
+  </Card>
+  <Card title="Build from source" icon="hammer" href="/building/overview">
+    Compile Chatterino7 yourself on any supported platform.
+  </Card>
+  <Card title="7TV features" icon="star" href="/features/seventv-overview">
+    Learn about paints, personal emotes, and animated avatars.
+  </Card>
+</CardGroup>
+
+## What makes Chatterino7 different
+
+Chatterino2 is a general-purpose Twitch client. Chatterino7 extends it with features that require a 7TV account or subscription:
+
+| Feature | Chatterino2 | Chatterino7 |
+|---|---|---|
+| 7TV name paints | — | Yes |
+| 7TV personal emotes | — | Yes |
+| 7TV animated profile avatars | — | Yes |
+| 4x image quality (7TV & FFZ) | — | Yes |
+| Experimental Kick support | — | Yes |
+| AVIF image support | — | Yes |
+| All standard Twitch features | Yes | Yes |
+| Lua plugin system | Yes | Yes |
+
+Every Chatterino2 release is merged into Chatterino7, so you get the full feature set of both.
+
+## Downloads
+
+<CardGroup cols={2}>
+  <Card title="Stable release" icon="shield-check" href="https://github.com/SevenTV/chatterino7/releases/latest">
+    The latest stable build from GitHub releases.
+  </Card>
+  <Card title="Nightly build" icon="moon" href="https://github.com/SevenTV/chatterino7/releases/tag/nightly-build">
+    The most recent development build with the newest changes.
+  </Card>
+</CardGroup>
+
+Windows users can also install from [Chocolatey](https://chocolatey.org/packages/chatterino7):
+
+```powershell
+choco install chatterino7
+```
+
+## System requirements
+
+| Platform | Minimum version | Notes |
+|---|---|---|
+| Windows | Windows 10 64-bit | ARM builds available (experimental) |
+| macOS | 13.0 Ventura | Universal binary — runs natively on Intel and Apple Silicon |
+| Linux | — | AppImage provided; distro packages require building from source |
+| FreeBSD | 14.0-RELEASE | Must build from source |
+
+## Reporting issues
+
+Use the correct tracker depending on the type of problem:
+
+- **7TV-specific bugs** (paints, personal emotes, avatars, AVIF): [SevenTV/chatterino7 issues](https://github.com/SevenTV/chatterino7/issues)
+- **General Twitch or UI bugs**: [Chatterino/chatterino2 issues](https://github.com/Chatterino/chatterino2/issues)
+
+If you don't have a GitHub account, join the [7TV Discord](https://discord.com/invite/7tv) to report issues or ask questions.

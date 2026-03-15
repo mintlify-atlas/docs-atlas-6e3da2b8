@@ -1,0 +1,126 @@
+---
+title: "Moderation tools"
+description: "Use Chatterino7's moderation mode, quick-action buttons, and usercard tools to moderate chat efficiently."
+---
+
+Chatterino7 provides several layers of moderation tooling: inline message actions, configurable quick-action buttons in moderation mode, and the usercard panel.
+
+## Enabling moderation mode
+
+Moderation mode adds a row of quick-action buttons to every message in the split. You can only enable it in channels where you are a moderator or broadcaster.
+
+<Steps>
+  <Step title="Enter moderation mode">
+    Click the shield icon in the split header, or use the **Toggle moderation mode** hotkey action (configurable in Settings → Keyboard shortcuts).
+  </Step>
+  <Step title="Use the action buttons">
+    Each message row now shows your configured quick-action buttons. Click any button to execute the corresponding moderation command on the message author.
+  </Step>
+  <Step title="Exit moderation mode">
+    Click the shield icon again, or use the same hotkey to toggle it off.
+  </Step>
+</Steps>
+
+<Tip>
+You can bind a key sequence to the **Set moderation mode** Split action in Settings → Keyboard shortcuts for even faster toggling.
+</Tip>
+
+## Quick-action buttons
+
+Moderation action buttons are shown alongside messages in moderation mode. Each button runs a predefined command against the message author or message ID.
+
+### Configuring buttons
+
+Go to **Settings → Moderation** → **Moderation buttons** to add, remove, or reorder your quick-action buttons.
+
+Each button is defined by:
+
+- **Action** — the command text, including command variables.
+- **Icon** — an optional `.png` or `.jpg` image shown on the button. Without an icon, the button displays two lines of text derived from the action.
+
+### Command variables in moderation buttons
+
+The same command variables available in custom commands work in moderation button actions. The most useful ones when moderating:
+
+| Variable | Description |
+|---|---|
+| `{user.name}` | The login name of the message author |
+| `{msg.id}` | The Twitch message ID |
+| `{channel.name}` | The channel where the message was sent |
+
+### Example button actions
+
+```text
+/timeout {user.name} 1         — 1-second timeout (effectively a purge)
+/timeout {user.name} 600       — 10-minute timeout
+/timeout {user.name} 86400     — 24-hour timeout
+/ban {user.name}               — permanent ban
+/delete {msg.id}               — delete the specific message
+/w someusername !report {user.name} was bad in {channel.name}
+```
+
+<Note>
+Moderation button actions support the full custom command variable syntax including `{msg.id}` for per-message actions like `/delete`.
+</Note>
+
+## Right-click message actions
+
+Right-clicking any message opens a context menu with inline moderation options, regardless of whether moderation mode is active.
+
+Available actions include:
+
+- **Copy message** — copy the full message text to the clipboard.
+- **Copy username** — copy the sender's login name.
+- **Reply** — open a reply thread in the input box.
+- **Delete message** — immediately delete the message (requires moderator permissions).
+- **Open usercard** — open the usercard panel for the message author.
+- **Timeout** — quick timeout options.
+- **Ban** — permanently ban the user.
+
+## Usercard
+
+The usercard gives you a full view of a user's profile and moderation history in the channel. Open it by:
+
+- Clicking the user's name in chat.
+- Right-clicking a message and selecting **Open usercard**.
+- Typing `/user <username>` or `/usercard <username>`.
+
+The usercard shows:
+
+<CardGroup cols={2}>
+  <Card title="Profile info" icon="user">
+    Avatar, display name, account age, and Twitch profile link.
+  </Card>
+  <Card title="Recent messages" icon="message-square">
+    The user's recent messages in the current channel.
+  </Card>
+  <Card title="Mod actions" icon="shield">
+    Timeout, ban, and unban buttons directly in the usercard.
+  </Card>
+  <Card title="Logs link" icon="scroll">
+    Quick access to external log services if configured.
+  </Card>
+</CardGroup>
+
+In popup usercard windows, you can use the **Usercard: execute moderation action** hotkey (configurable in the Popup Windows category) to trigger ban, unban, or a numbered timeout button without clicking.
+
+## Chat settings shortcuts
+
+You can use the following commands from the input box to change chat room settings without opening the Twitch dashboard:
+
+```text
+/slow 30           — slow mode every 30 seconds
+/slowoff
+/subscribers       — subscribers-only mode
+/subscribersoff
+/emoteonly         — emote-only mode
+/emoteonlyoff
+/followers 10      — followers-only (10 min follow age)
+/followersoff
+/uniquechat        — r9k / unique messages only
+/uniquechatoff
+/shield            — enable Shield Mode
+/shieldoff
+```
+
+See the full command list in [Commands](/features/commands).

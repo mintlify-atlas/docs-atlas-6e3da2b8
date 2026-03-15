@@ -1,0 +1,116 @@
+---
+title: "Plugin permissions"
+description: "Understand the permission system for Chatterino7 plugins and how to declare the permissions your plugin needs."
+---
+
+Plugins must explicitly declare every sensitive permission they need in their `info.json` manifest. Chatterino will not grant a permission unless the plugin declares it. Operations that do not require a permission are documented as such.
+
+## Declaring permissions
+
+Permissions are declared as an array of objects in `info.json`. Each object has a single `type` field:
+
+```json info.json
+{
+  "name": "My Plugin",
+  "description": "Does something useful.",
+  "authors": ["you"],
+  "version": "1.0.0",
+  "license": "MIT",
+  "permissions": [
+    { "type": "FilesystemRead" },
+    { "type": "Network" }
+  ]
+}
+```
+
+## Available permissions
+
+### `FilesystemRead`
+
+Allows the plugin to read files from its `data/` directory. Required for:
+
+- `io.open(filename, "r")` and other read modes
+- `io.input(filename)` when called with a filename
+- `io.lines(filename)` when called with a filename
+
+```json
+{
+  "permissions": [
+    { "type": "FilesystemRead" }
+  ]
+}
+```
+
+File paths are restricted to the plugin's `data/` directory. Attempting to access files outside this directory will produce an error regardless of this permission.
+
+### `FilesystemWrite`
+
+Allows the plugin to create and write files in its `data/` directory. Required for:
+
+- `io.open(filename, "w")`, `io.open(filename, "a")`, and other write/append modes
+- `io.output(filename)` when called with a filename
+
+```json
+{
+  "permissions": [
+    { "type": "FilesystemWrite" }
+  ]
+}
+```
+
+The mode table for `io.open()` and required permissions:
+
+| Mode | Permission | Read | Write | Truncate | Create |
+|------|-----------|------|-------|----------|--------|
+| `r` | `FilesystemRead` | Yes | No | No | No |
+| `w` | `FilesystemWrite` | No | Yes | Yes | Yes |
+| `a` | `FilesystemWrite` | No | Append | No | Yes |
+| `r+` | `FilesystemWrite` | Yes | Yes | No | No |
+| `w+` | `FilesystemWrite` | Yes | Yes | Yes | Yes |
+| `a+` | `FilesystemWrite` | Yes | Append | No | Yes |
+
+Append `b` to any mode for binary access (e.g., `"rb"`, `"wb"`).
+
+### `Network`
+
+Allows the plugin to send outbound HTTP requests using the [HTTP API](/plugins/api/http). Without this permission, calling `c2.HTTPRequest.create()` and `execute()` will fail.
+
+```json
+{
+  "permissions": [
+    { "type": "Network" }
+  ]
+}
+```
+
+<Note>
+  The `Network` permission covers HTTP requests only. [WebSocket](/plugins/api/websocket) connections currently use a separate code path — check the WebSocket API page for its permission requirements.
+</Note>
+
+## Security rationale
+
+The permission system exists because plugins can be written by anyone and distributed freely. Requiring explicit permission declarations:
+
+- Makes a plugin's capabilities visible before you install it
+- Prevents plugin code from silently exfiltrating data or modifying files
+- Limits the blast radius if a plugin has a bug or is compromised
+
+Chatterino cannot guarantee the safety of all possible plugin code. Only install plugins from authors you trust.
+
+## Full example with all permissions
+
+```json info.json
+{
+  "$schema": "https://raw.githubusercontent.com/Chatterino/chatterino2/master/docs/plugin-info.schema.json",
+  "name": "Full permissions example",
+  "description": "A plugin that uses all available permissions.",
+  "authors": ["example"],
+  "version": "1.0.0",
+  "license": "MIT",
+  "permissions": [
+    { "type": "FilesystemRead" },
+    { "type": "FilesystemWrite" },
+    { "type": "Network" }
+  ]
+}
+```

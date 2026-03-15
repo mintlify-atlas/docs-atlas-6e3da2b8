@@ -1,0 +1,174 @@
+---
+title: "HTTP API"
+description: "Send HTTP requests from a Chatterino7 plugin using c2.HTTPRequest."
+---
+
+The HTTP API lets your plugin send asynchronous outbound HTTP requests. Responses arrive in callbacks — the request does not block the Chatterino UI.
+
+<Warning>
+  HTTP requests require the `Network` permission in your plugin's `info.json`. See [Permissions](/plugins/permissions) for details.
+</Warning>
+
+## `c2.HTTPRequest.create(method, url)`
+
+Creates a new `HTTPRequest`. Call the configuration methods below, then call `execute()` to send it.
+
+<ParamField path="method" type="c2.HTTPMethod" required>
+  The HTTP method to use. See [`c2.HTTPMethod`](#c2httpmethod-enum).
+</ParamField>
+
+<ParamField path="url" type="string" required>
+  A valid URL string, e.g. `"https://example.com/path/to/api"`.
+</ParamField>
+
+<Note>
+  Do not create requests you do not intend to `execute()`. Unexecuted requests leak their callbacks and all captured upvalues.
+</Note>
+
+## `c2.HTTPMethod` enum
+
+The values behind each name may change — always use the named constants.
+
+| Value | HTTP method |
+|-------|-------------|
+| `c2.HTTPMethod.Get` | `GET` |
+| `c2.HTTPMethod.Post` | `POST` |
+| `c2.HTTPMethod.Put` | `PUT` |
+| `c2.HTTPMethod.Delete` | `DELETE` |
+| `c2.HTTPMethod.Patch` | `PATCH` |
+
+## Request configuration methods
+
+### `HTTPRequest:on_success(callback)`
+
+Sets the callback to call when the request completes successfully.
+
+<ParamField path="callback" type="function" required>
+  A function that receives one `HTTPResponse` argument.
+</ParamField>
+
+### `HTTPRequest:on_error(callback)`
+
+Sets the callback to call when the request fails (network error or non-OK status).
+
+<ParamField path="callback" type="function" required>
+  A function that receives one `HTTPResponse` argument. Inspect `res:error()` for a description of the failure.
+</ParamField>
+
+### `HTTPRequest:finally(callback)`
+
+Sets a callback that is always called after `on_success` or `on_error`, regardless of outcome.
+
+<ParamField path="callback" type="function" required>
+  A function that receives no arguments.
+</ParamField>
+
+### `HTTPRequest:set_timeout(timeout)`
+
+Sets the timeout for the request.
+
+<ParamField path="timeout" type="integer" required>
+  Timeout in milliseconds.
+</ParamField>
+
+### `HTTPRequest:set_payload(data)`
+
+Sets the request body.
+
+<ParamField path="data" type="string" required>
+  The request body as a string.
+</ParamField>
+
+### `HTTPRequest:set_header(name, value)`
+
+Adds or overwrites a request header. Non-string values are converted to strings.
+
+<ParamField path="name" type="string" required>
+  The header name.
+</ParamField>
+
+<ParamField path="value" type="string" required>
+  The header value.
+</ParamField>
+
+### `HTTPRequest:execute()`
+
+Sends the request. Returns nothing. The callbacks are invoked asynchronously.
+
+## `HTTPResponse`
+
+Passed to `on_success` and `on_error` callbacks.
+
+### `HTTPResponse:data()`
+
+Returns the response body as a string. The encoding is whatever the server returned — it is not guaranteed to be UTF-8.
+
+### `HTTPResponse:status()`
+
+Returns the HTTP status code as a number, or `nil` if the request failed before a status code was received.
+
+### `HTTPResponse:error()`
+
+Returns a human-readable error description if the request failed. Examples: `"ConnectionRefusedError"`, `"401"`.
+
+## Examples
+
+<CodeGroup>
+
+```lua GET request
+local req = c2.HTTPRequest.create(c2.HTTPMethod.Get, "https://example.com")
+req:on_success(function(res)
+    print(res:data())
+end)
+req:execute()
+```
+
+```lua POST with headers
+local url = "http://localhost:8080/thing"
+local request = c2.HTTPRequest.create(c2.HTTPMethod.Post, url)
+request:set_timeout(1000)
+request:set_payload("TEST!")
+request:set_header("X-Test", "Testing!")
+request:set_header("Content-Type", "text/plain")
+request:on_success(function(res)
+    print('Success!')
+    print(res:status())
+end)
+request:on_error(function(res)
+    print('Error!')
+    print(res:status())
+    print(res:error())
+end)
+request:finally(function()
+    print('Finally')
+end)
+request:execute()
+
+-- Success output:
+-- Success!
+-- 200
+-- Finally
+
+-- Error output:
+-- Error!
+-- nil
+-- ConnectionRefusedError
+-- Finally
+```
+
+</CodeGroup>
+
+## Minimal `info.json` for HTTP
+
+```json info.json
+{
+  "name": "My HTTP plugin",
+  "description": "Fetches data from an external API.",
+  "authors": ["you"],
+  "version": "1.0.0",
+  "license": "MIT",
+  "permissions": [
+    { "type": "Network" }
+  ]
+}
+```

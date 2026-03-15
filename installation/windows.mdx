@@ -1,0 +1,78 @@
+---
+title: "Windows"
+description: "Install Chatterino7 on Windows using the installer, Chocolatey, or the nightly build."
+---
+
+## Stable release
+
+Download the latest stable installer from GitHub releases:
+
+<Card title="Download Chatterino7 for Windows" icon="windows" href="https://github.com/SevenTV/chatterino7/releases/latest">
+  Stable builds are published on the GitHub releases page.
+</Card>
+
+Run the downloaded `.exe` installer and follow the prompts. No additional configuration is required.
+
+## Nightly build
+
+Nightly builds are updated automatically from the `chatterino7` branch and contain the latest changes before they are published in a stable release.
+
+<Card title="Download nightly build" icon="moon" href="https://github.com/SevenTV/chatterino7/releases/tag/nightly-build">
+  Use the nightly build to test new features early.
+</Card>
+
+<Warning>
+  Nightly builds may contain bugs or incomplete features. Use a stable release for day-to-day use.
+</Warning>
+
+## Chocolatey
+
+If you use [Chocolatey](https://chocolatey.org/), you can install and upgrade Chatterino7 from the command line:
+
+```powershell
+choco install chatterino7
+```
+
+To upgrade an existing installation:
+
+```powershell
+choco upgrade chatterino7
+```
+
+## ARM builds
+
+<Note>
+  ARM builds for Windows are available starting from 7.5.5-beta.1. They are considered experimental and may have issues not present in the standard x64 build.
+</Note>
+
+ARM builds are published alongside the standard x64 builds on the [releases page](https://github.com/SevenTV/chatterino7/releases/latest). Look for a file with `arm` or `arm64` in its name.
+
+## VC++ redistributables
+
+Chatterino7 requires the Microsoft Visual C++ Redistributable. If you see an error about a missing `.dll` file on first launch, install the redistributable for your system:
+
+<CardGroup cols={2}>
+  <Card title="VC++ 2015–2022 Redistributable" icon="microsoft" href="https://aka.ms/vs/17/release/vc_redist.x64.exe">
+    Required for most Windows 10 and 11 installations.
+  </Card>
+  <Card title="VC++ 2013 Redistributable" icon="microsoft" href="https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe">
+    Install this if you see an error about `MSVCR120.dll missing`.
+  </Card>
+</CardGroup>
+
+## First-launch setup
+
+<Steps>
+  <Step title="Launch Chatterino7">
+    Double-click the Chatterino7 icon on your desktop or in the Start menu.
+  </Step>
+  <Step title="Add your Twitch account">
+    Go to **File → Settings → Accounts** and click **Add account**. A browser window will open for Twitch authentication. Complete the login and return to Chatterino7.
+  </Step>
+  <Step title="Open a channel">
+    Click the **+** button in the split area, or go to **View → Open channel** and enter a channel name.
+  </Step>
+  <Step title="Verify 7TV cosmetics">
+    If you have an active 7TV subscription, your name paint, personal emotes, and animated avatar load automatically. You do not need to configure anything.
+  </Step>
+</Steps>

@@ -1,0 +1,110 @@
+---
+title: "Building on Linux"
+description: "Build Chatterino7 from source on Ubuntu, Arch, Fedora, openSUSE, Gentoo, NixOS, and other Linux distributions."
+---
+
+Chatterino7 is built with Qt 6 across all distributions. The minimum supported version is Qt 5.15.2, but Qt 6 is used in CI and strongly recommended.
+
+## Install dependencies
+
+Select your distribution:
+
+<Tabs>
+  <Tab title="Debian 13+ / Ubuntu">
+
+**Ubuntu** requires Docker for the build environment. Use the official Chatterino build images:
+
+- Ubuntu 22.04: [`ghcr.io/chatterino/chatterino2-build-ubuntu-22.04`](https://github.com/Chatterino/docker/pkgs/container/chatterino2-build-ubuntu-22.04)
+- Ubuntu 24.04: [`ghcr.io/chatterino/chatterino2-build-ubuntu-24.04`](https://github.com/Chatterino/docker/pkgs/container/chatterino2-build-ubuntu-24.04)
+
+The built binary can be exported from the final image. See the [build.yml GitHub workflow](https://github.com/SevenTV/chatterino7/blob/chatterino7/.github/workflows/build.yml) for the exact CMake flags used.
+
+**Debian 13 (trixie) or later:**
+
+```bash
+sudo apt install qt6-base-dev qt6-svg-dev qt6-image-formats-plugins libboost-dev libnotify-dev libssl-dev libsecret-1-dev pkg-config cmake g++ git hunspell
+```
+
+  </Tab>
+  <Tab title="Arch Linux">
+
+```bash
+sudo pacman -S --needed qt6-base qt6-tools boost-libs openssl qt6-imageformats qt6-svg boost libnotify rapidjson pkgconf cmake hunspell
+```
+
+If you use Wayland, also install:
+
+```bash
+sudo pacman -S qt6-wayland
+```
+
+Alternatively, the [chatterino2-git](https://aur.archlinux.org/packages/chatterino2-git/) AUR package builds and installs the upstream Chatterino2 automatically.
+
+  </Tab>
+  <Tab title="openSUSE">
+
+```bash
+sudo zypper install cmake pkgconf boost-devel libboost_json1_89_0-devel desktop-file-utils libappstream-glib8 hunspell ninja doxygen qt6-tools-devel
+```
+
+  </Tab>
+  <Tab title="Gentoo">
+
+```bash
+doas emerge dev-libs/openssl dev-qt/qt5compat dev-qt/qtbase dev-qt/qtsvg dev-qt/qtimageformats x11-libs/libnotify dev-libs/qtkeychain dev-libs/boost dev-build/cmake app-text/hunspell
+```
+
+  </Tab>
+  <Tab title="Fedora 39+">
+
+```bash
+sudo dnf install qt6-qtbase-devel qt6-qtimageformats qt6-qtsvg-devel qt6-qtbase-private-devel g++ git openssl-devel libnotify-devel boost-devel cmake hunspell
+```
+
+This also applies to other Red Hat-based distributions. Substitute `dnf` with `yum` on older releases.
+
+  </Tab>
+  <Tab title="NixOS 18.09+">
+
+```bash
+nix-shell -p openssl boost qt6.full pkg-config cmake libnotify hunspell
+```
+
+  </Tab>
+</Tabs>
+
+## Compile
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone --recurse-submodules https://github.com/SevenTV/chatterino7.git
+    cd chatterino7
+    ```
+  </Step>
+  <Step title="Create a build directory">
+    ```bash
+    mkdir build
+    cd build
+    ```
+  </Step>
+  <Step title="Generate build files">
+    ```bash
+    cmake -DBUILD_WITH_QTKEYCHAIN=OFF -DCHATTERINO_SPELLCHECK=On ..
+    ```
+
+    <Note>
+      To enable Lua plugins, add `-DCHATTERINO_PLUGINS=ON` to this command.
+    </Note>
+  </Step>
+  <Step title="Build the project">
+    ```bash
+    cmake --build .
+    ```
+  </Step>
+</Steps>
+
+## Build using Qt Creator
+
+1. Install Qt Creator: `sudo apt install qtcreator` (or the equivalent for your distribution).
+2. Open `CMakeLists.txt` in Qt Creator and select your build configuration.

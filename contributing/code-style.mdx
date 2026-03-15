@@ -1,0 +1,269 @@
+---
+title: Code style
+description: Formatting tools, C++ conventions, and naming rules used in the Chatterino7 codebase.
+---
+
+Chatterino7 inherits the code style of Chatterino 2. The goal is a consistent codebase that C++ newcomers (coming from Java, Python, etc.) and Qt newcomers can understand. This page covers the most important rules.
+
+## Automatic formatting with clang-format
+
+All code is formatted with `clang-format`. The configuration lives in `.clang-format` at the repository root. You do not need to memorize formatting rules — let the tool enforce them.
+
+Key settings in `.clang-format`:
+
+| Setting | Value |
+| --- | --- |
+| Base style | Google |
+| Column limit | 80 |
+| Indent width | 4 spaces |
+| Brace wrapping | Custom (braces on new lines for classes, functions, control flow) |
+| Include sorting | Case-insensitive, regrouped by category |
+| Pointer binding | Binds to variable, not type (`int *p`, not `int* p`) |
+
+### Running clang-format manually
+
+```bash
+# Format a single file
+clang-format -i src/path/to/File.cpp
+
+# Format all changed files (compared to main branch)
+git diff --name-only chatterino7 | grep -E '\.(cpp|hpp)$' | xargs clang-format -i
+```
+
+The `check-formatting.yml` CI workflow will fail your PR if any file is not correctly formatted.
+
+### Format on save in your editor
+
+<Tabs>
+  <Tab title="VS Code">
+    Install the [clangd extension](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd) or the [C/C++ extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools).
+
+    Add to your workspace `settings.json`:
+
+    ```json
+    {
+      "editor.formatOnSave": true,
+      "[cpp]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="CLion">
+    CLion supports `.clang-format` natively. Enable it under **Settings → Editor → Code Style → C/C++ → Enable ClangFormat**.
+
+    To format on save, add a file-watcher or enable **Reformat code on save** in the CLion settings.
+  </Tab>
+  <Tab title="Qt Creator">
+    Qt Creator supports ClangFormat via **Edit → Preferences → C++ → Code Style**. Select **ClangFormat** as the formatter and point it at the repository's `.clang-format` file.
+  </Tab>
+  <Tab title="Vim / Neovim">
+    Use `clangd` as your LSP server. Most plugin managers support it via `nvim-lspconfig`:
+
+    ```lua
+    require('lspconfig').clangd.setup({})
+    ```
+
+    Then configure your formatter to run `clang-format` on save.
+  </Tab>
+</Tabs>
+
+## Static analysis with clang-tidy
+
+`clang-tidy` runs in CI via `clang-tidy.yml` and `post-clang-tidy-review.yml`. It enforces additional rules beyond formatting. Findings are posted as review comments on pull requests.
+
+To run `clang-tidy` locally, generate a `compile_commands.json` first:
+
+```bash
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build
+clang-tidy -p build src/path/to/File.cpp
+```
+
+## Ignoring style commits in git blame
+
+The repository contains commits that touched many files purely for style changes (formatting, brace normalization, adding `this->`). These obscure the useful history in `git blame`.
+
+Configure git to ignore them:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+GitHub applies this automatically. The `.git-blame-ignore-revs` file currently lists the following style commits:
+
+```
+# 2018 - changed to 80 max column
+f71ff08e686ae76c3dd4084d0f05f27ba9b3fdcb
+
+# 2018 - added brace wrapping after if and for
+e259b9e39f46f3cb0e4838c988d4f320a03dfaa4
+
+# 2019 - Normalize line endings in already existing files
+b06eb9df835c25154899fbcf43e9b37addcea1b1
+
+# 2025 - Unindented inner namespaces
+8acca1c241db169a682c4712154145f5fc92e0d4
+
+# 2025 - Mass-added missing explicit `this->`
+57d6583a2bb1da60322044ba4a0c01b0e7f0a158
+```
+
+## Comments
+
+Comments should only be used to:
+
+- Increase readability (for example, grouping related member variables).
+- Contain information that cannot be expressed in code.
+
+Structure your code so that comments are not required. Do not use comments to repeat what the function signature already says.
+
+**Good — adds information the signature cannot express:**
+
+```cpp
+/// Result is 0 if a == b, negative if a < b and positive if b > a.
+/// ^^^ You can't know this from the function signature!
+int compare(const QString &a, const QString &b);
+```
+
+**Bad — just restates the signature:**
+
+```cpp
+/*
+ * Matches a link and returns std::nullopt if it failed and a
+ * QRegularExpressionMatch on success.
+ * ^^^ This comment just repeats the function signature!!!
+ *
+ * @param text The text that will be checked if it contains a link
+ * ^^^ No need to repeat the obvious.
+ */
+std::optional<QRegularExpressionMatch> matchLink(const QString &text);
+```
+
+## C++ conventions
+
+### Initialize arithmetic types
+
+Arithmetic types (`char`, `short`, `int`, `long`, `float`, `double`), `bool`, and raw pointers are not zero-initialized by default in C++. Always initialize them explicitly with `{}`:
+
+```cpp
+class Example
+{
+    int count{};           // 0
+    QWidget *widget{};     // nullptr
+    bool enabled_{};       // false
+
+    // std::vector calls its own constructor — no {} needed
+    std::vector<int> items;
+
+    int value = 5;         // explicit non-zero initialization is also fine
+};
+```
+
+### Passing parameters
+
+The way a parameter is passed signals how it will be used inside the function:
+
+| Convention | Meaning |
+| --- | --- |
+| `int value` | Cheap to copy — pass by value |
+| `const Type &name` | In-parameter. Will not be modified. May be copied inside the function. |
+| `Type &name` | Out or in-out parameter. Will be modified. |
+| `Type *name` | Pointer with a lifetime that may exceed the function call. Often part of the Qt object tree. |
+| `Type &&name` | R-value reference. The caller's object will be consumed (moved). |
+
+Use the lowest level of constraint possible. Pass `Channel &` instead of `std::shared_ptr<Channel> &` where the function doesn't need to manage ownership.
+
+### Naming
+
+- All function names use `camelCase`.
+- Private member variables use `camelCase_` (trailing underscore).
+- Do not use a `get` prefix for getters — use `name()`, not `getName()`.
+- Use `is` or `has` prefixes for boolean queries: `isVisible()`, `hasLongName()`.
+- Mark functions `const` whenever applicable.
+
+```cpp
+class NamedObject
+{
+public:
+    const QString &name() const;     // no "get" prefix
+    void setName(const QString &name);
+    bool hasLongName() const;
+
+    QString publicName;
+
+private:
+    QString name_;                   // trailing underscore
+};
+```
+
+### Always use `this->`
+
+Always prefix instance member access with `this->` to make it clear whether you are reading a local or a member:
+
+```cpp
+void Test::testFunc(int a)
+{
+    this->testInt_ += 2;   // clear: member
+    this->testFunc();      // clear: member function
+
+    testInt_ -= 123;       // unclear without the underscore hint
+}
+```
+
+### Casts
+
+Avoid C-style casts. Use C++ casts instead:
+
+```cpp
+// Don't
+int i = (int)f;
+Derived *d = (Derived *)base;
+
+// Do
+int i = int(f);
+Derived *d = dynamic_cast<Derived *>(base);
+```
+
+- Use `static_cast` for safe conversions between related types.
+- Use `dynamic_cast` when downcasting through a class hierarchy.
+- Use `const_cast` only when proper `const` correctness is not achievable.
+- Avoid `reinterpret_cast` except when absolutely necessary.
+
+### Resource management
+
+**Non-QObject types:**
+
+- Keep objects on the stack when possible.
+- Use `std::unique_ptr` when a resource has a single owner.
+- Use `std::shared_ptr` when a resource has multiple owners.
+
+**QObject types:**
+
+- Use the [Qt object tree](https://doc.qt.io/qt-6/objecttrees.html) to manage lifetimes. Objects are destroyed when their parent is destroyed.
+- Call `deleteLater()` instead of `delete` when you must explicitly destroy an object — this ensures deletion on the correct thread.
+- For parentless QObjects, use `std::unique_ptr<Type, DeleteLater>` with `DeleteLater` from `src/common/Common.hpp`.
+
+### Usage strings
+
+When informing users about command syntax, follow the [POSIX utility conventions](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html):
+
+- `[optional argument]` — square brackets for optional parameters.
+- `<required argument>` — angle brackets for required parameters.
+- Capitalize `Usage` and follow it with a colon.
+- Add a period and description only when the usage alone is not self-explanatory.
+
+```
+Usage: /block <user>
+Usage: /unblock <user>. Unblocks a user.
+Usage: /streamlink [channel]
+```
+
+## Include order
+
+`clang-format` automatically sorts and regroups `#include` directives. The priority order is:
+
+1. Project includes (`"src/..."` style)
+2. Qt includes (`<Q...>`)
+3. LibCommuni includes (`<Irc...>`), third-party headers, and standard library headers
+
+Do not manually sort or group includes — let `clang-format` handle it.

@@ -1,0 +1,112 @@
+---
+title: "Highlights"
+description: "Configure highlight rules to draw attention to messages that match keywords, usernames, badges, or special events."
+---
+
+Highlights make specific messages stand out in the message view by animating the message background, playing a sound, and optionally showing the message in the **Mentions** tab. You configure them in **Settings → Highlighting**.
+
+## How highlights work
+
+When a message arrives, Chatterino7 runs it through all active highlight checks in order:
+
+1. Subscription messages
+2. Whispers
+3. Keyword/phrase matches (including your own username)
+4. User matches
+5. Reply thread messages
+6. Badge matches
+
+The first matching rule wins for each property (color, sound, alert). If multiple rules match, earlier rules take priority for conflicting properties, but all matching rules contribute to the result — a sound from a later rule can fire even if an earlier rule already set the color.
+
+## Built-in highlights
+
+Several highlight types are enabled by default and configured with their own toggles in Settings → Highlighting.
+
+<CardGroup cols={2}>
+  <Card title="Self-highlight" icon="user">
+    Messages that contain your own username are highlighted. You can configure the highlight color, enable sound, and choose whether they appear in the Mentions tab.
+  </Card>
+  <Card title="Subscription messages" icon="star">
+    Sub, resub, and gift sub messages can be highlighted. Enable **Highlight subscriptions** and optionally set a custom sound.
+  </Card>
+  <Card title="Whispers" icon="envelope">
+    Received whispers are highlighted. Configure color, sound, and taskbar alert independently.
+  </Card>
+  <Card title="Reply threads" icon="message-circle">
+    Messages in reply threads you are subscribed to are highlighted. You can opt to show these in the Mentions tab.
+  </Card>
+  <Card title="AutoMod messages" icon="robot">
+    Messages caught by AutoMod and shown in the AutoMod queue can be highlighted. See [AutoMod](/features/automod).
+  </Card>
+  <Card title="Own sent messages" icon="arrow-right">
+    Your own sent messages can be highlighted separately from username-match highlights. Toggle **Highlight own messages** and configure visibility in Mentions.
+  </Card>
+</CardGroup>
+
+## Keyword / phrase highlights
+
+Add keyword rules in the **Messages** tab under Settings → Highlighting.
+
+Each rule has:
+
+| Field | Description |
+|---|---|
+| **Pattern** | The text to match. Can be a plain string or a regular expression. |
+| **Regex** | When enabled, the pattern is treated as a regular expression. |
+| **Case sensitive** | Whether matching is case-sensitive. |
+| **Alert** | Flash the taskbar when this rule matches. |
+| **Sound** | Play a sound. Optionally set a custom audio file. |
+| **Color** | Background highlight color applied to matching messages. |
+| **Show in Mentions** | Whether matching messages appear in the Mentions tab. |
+
+```text
+Example patterns:
+  pog         — matches messages containing the word "pog"
+  \bgg\b      — regex: matches "gg" as a whole word
+  (hype|PogU) — regex: matches either "hype" or "PogU"
+```
+
+<Warning>
+Phrase highlights do **not** match your own messages. If you want to highlight something you send, create a user highlight for your own username.
+</Warning>
+
+## User highlights
+
+Add rules in the **Users** tab to highlight every message from a specific user.
+
+- The pattern supports regular expressions if **Regex** is enabled.
+- Each user rule has its own color, sound, and Mentions visibility settings.
+- A special toggle, **Highlight own messages**, lets you highlight all messages you send without adding an explicit user rule for yourself.
+
+## Badge highlights
+
+Add rules in the **Badges** tab to highlight messages from users who hold a specific badge (for example, Moderator, Subscriber, VIP, or any custom badge).
+
+Badge highlights fire after phrase and user checks. A badge rule has the same options: color, sound, alert, and Mentions visibility.
+
+## Highlight colors
+
+Each rule can have an independent highlight color. The color is shown as a background animation that fades from `highlightAnimationStart` to `highlightAnimationEnd` (defined in your theme). If no custom color is set for a rule, the default system color for that highlight type is used.
+
+You can change the default colors for built-in highlight types (self-highlight, subscription, whisper, etc.) in **Settings → Highlighting** by clicking the color swatch next to each toggle.
+
+## Sound notifications
+
+Highlights can play a sound when they fire. Each rule independently controls:
+
+- **Use default sound** — plays the built-in `ping2.wav`.
+- **Custom sound** — lets you select any `.wav` or compatible audio file.
+
+The sound plays at most once per highlight result even if multiple rules match the same message.
+
+## Mentions tab
+
+The **Mentions** tab (accessible from the tab bar or via the `/requests` command) aggregates all messages flagged with **Show in Mentions**. This gives you a single view across all open channels for messages directed at you or matching important keywords.
+
+<Tip>
+Enable **Show in Mentions** on your username highlight rule to catch all @-mentions across every channel you have open.
+</Tip>
+
+## Blacklist
+
+The **Blacklist** tab in Settings → Highlighting lets you add usernames or patterns that are **never** highlighted, overriding all other rules. This is useful for suppressing highlight-heavy bots or known spammers.

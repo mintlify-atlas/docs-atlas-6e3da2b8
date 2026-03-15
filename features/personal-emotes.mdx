@@ -1,0 +1,64 @@
+---
+title: "Personal Emotes"
+description: "7TV personal emote sets give each subscriber a private emote set they can use in any Twitch or Kick channel."
+---
+
+Personal emotes are a 7TV subscriber feature that gives each user their own private emote set. Unlike channel emotes, which are tied to a specific channel, personal emotes are usable **anywhere you chat** — in any Twitch or Kick channel — as long as the viewer's client supports them. Chatterino7 renders personal emotes natively.
+
+![Example of personal emotes in chat](https://user-images.githubusercontent.com/27637025/227032811-837c56eb-7724-431b-b00e-b944c9289dff.png)
+
+## How personal emotes work
+
+Each 7TV user with an active subscription has one or more **personal emote sets** associated with their account. These sets are independent of any channel and follow the user across every channel they chat in.
+
+When Chatterino7 opens a channel and a user sends a message, it resolves that user's Twitch or Kick user ID against the personal emote registry. If the user has a personal emote set loaded, Chatterino7 checks each token in their message against all emotes in that set before falling back to channel and global emotes.
+
+A user can have multiple emote sets associated with their account. All sets are searched in order; the first matching emote wins.
+
+## Enabling and disabling personal emotes
+
+Personal emotes can be toggled in settings:
+
+1. Go to **File → Settings**.
+2. Open the **7TV** tab.
+3. Check or uncheck **Enable 7TV Personal Emotes**.
+
+When disabled, Chatterino7 stops returning personal emotes for all users — the emote sets remain in memory but are skipped during message rendering.
+
+## Real-time updates via EventAPI
+
+Personal emote sets update live through the **7TV EventAPI**. Chatterino7 handles three event types:
+
+| Event | Effect |
+|-------|--------|
+| `EMOTE_SET.EMOTE_ADD` | A new emote is added to the set and becomes available immediately. |
+| `EMOTE_SET.EMOTE_UPDATE` | An emote in the set is renamed. The old name stops matching; the new name starts. |
+| `EMOTE_SET.EMOTE_REMOVE` | An emote is removed from the set and no longer renders. |
+
+All three operations copy the emote map atomically, so there is no window where a partially-updated set could produce incorrect matches.
+
+## Special emote sets
+
+7TV can assign a user **special emote sets** — sets that are flagged as personal or commercial in the API (`Personal` or `Commercial` flags on the emote set). These are treated identically to standard personal emote sets and appear in the same lookup path.
+
+<Note>
+  A bug where special 7TV emote sets were not applied and did not appear in chat was fixed in **7.5.3-beta.1**.
+</Note>
+
+## Kick support
+
+Personal emotes work in Kick channels as well as Twitch channels. Emote sets are associated with Kick user IDs separately from Twitch IDs, so users who have connected both platforms to their 7TV account will have their personal emotes available in both.
+
+## Known fixes
+
+<AccordionGroup>
+  <Accordion title="Mentions becoming unclickable after a personal emote update">
+    In versions prior to **7.5.3-beta.1**, when a user announced or updated their personal emote set via the EventAPI, the message layout could be invalidated in a way that made username mentions in previously rendered messages unclickable. This was fixed by correctly handling the emote set update signal without invalidating existing message word positions.
+  </Accordion>
+</AccordionGroup>
+
+## Settings reference
+
+| Setting | Location | Description |
+|---------|----------|-------------|
+| Enable 7TV Personal Emotes | **Settings → 7TV** | Master toggle for personal emote rendering. |

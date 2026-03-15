@@ -1,0 +1,58 @@
+---
+title: "AutoMod"
+description: "Review and act on AutoMod-held messages directly inside Chatterino7."
+---
+
+Chatterino7 integrates with Twitch's AutoMod system, letting moderators and broadcasters approve or reject held messages without leaving the client.
+
+## The AutoMod channel
+
+When AutoMod holds a message for review, it appears in a special virtual channel. Open a split pointed at `/automod` to see held messages in real time:
+
+<Steps>
+  <Step title="Open a new split">
+    Press `Ctrl+T` to create a new split.
+  </Step>
+  <Step title="Enter the channel name">
+    Type the channel name of the channel you moderate (not `/automod` literally — enter the actual channel). AutoMod-held messages for a channel appear within that channel's AutoMod queue.
+  </Step>
+  <Step title="Enable the AutoMod highlight">
+    In **Settings → Highlighting**, enable **Highlight AutoMod messages** to make held messages visually distinct. You can also enable a sound alert for new AutoMod messages.
+  </Step>
+</Steps>
+
+<Note>
+AutoMod-held messages are only visible to moderators and the broadcaster of the channel.
+</Note>
+
+## How AutoMod messages appear
+
+Messages held by AutoMod are displayed in the channel's chat split with a distinct highlight (configured in Settings → Highlighting under the AutoMod section). The held message shows:
+
+- The author's username and message content.
+- The AutoMod reason or category (harassment, profanity, etc.) as provided by Twitch.
+- **Approve** and **Deny** action buttons.
+
+The `flags.automod` identifier in filter expressions evaluates to `true` for these messages, so you can use filters to create a split that shows only AutoMod-held content.
+
+## Approving and rejecting messages
+
+Click **Approve** to allow the message to appear in chat for all viewers. Click **Deny** to reject it. Both actions are sent immediately to the Twitch API.
+
+<Tip>
+Use a dedicated split with the filter `flags.automod` applied to keep AutoMod messages separate from regular chat, especially useful in high-volume channels.
+</Tip>
+
+## AutoMod highlights
+
+You can configure AutoMod messages to trigger a highlight with a custom color, sound, and taskbar alert in **Settings → Highlighting**:
+
+- Enable **Highlight AutoMod messages**.
+- Enable **Play sound for AutoMod highlights** and optionally specify a custom sound file.
+- Enable **Flash taskbar for AutoMod highlights** to get an OS-level notification.
+
+AutoMod highlights do not appear in the Mentions tab by default.
+
+## Low-trust users
+
+Messages from users marked as low-trust by Twitch are flagged with `flags.restricted` and `flags.monitored` in filter expressions. You can use `/lowtrust` to open the low-trust user management panel, or use `/monitor <user>` and `/restrict <user>` from the command line.

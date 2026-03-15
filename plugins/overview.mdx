@@ -1,0 +1,101 @@
+---
+title: "Plugin system overview"
+description: "Learn how Chatterino7's Lua plugin system works, what you can build, and how to get started."
+---
+
+Chatterino7 supports Lua-based plugins that let you extend the client with custom commands, HTTP integrations, WebSocket connections, file storage, and rich chat messages. Plugins are sandboxed and must declare explicit permissions for sensitive operations.
+
+<Warning>
+  The plugin system is only available in builds compiled with the `CHATTERINO_PLUGINS` CMake option. Official releases include this option.
+</Warning>
+
+## What you can do with plugins
+
+- **Custom commands** — register `/commands` that respond to user input in any channel
+- **Tab completion** — hook into the completion system to suggest custom values
+- **HTTP requests** — fetch data from external APIs (requires `Network` permission)
+- **WebSocket connections** — maintain real-time connections to external services
+- **File I/O** — read and write data files in the plugin's data directory (requires `FilesystemRead` / `FilesystemWrite` permissions)
+- **Rich messages** — construct and inject styled messages with clickable elements into any channel
+- **Channel inspection** — query open channels, their messages, and Twitch metadata
+
+## Security model
+
+Plugins run in a sandboxed Lua 5.4 environment. The following standard library modules are available:
+
+- `_G` (most globals)
+- `io` — stdin, stdout, and stderr are removed; file operations require permissions
+- `math`
+- `string`
+- `table`
+- `utf8`
+
+Sensitive operations require the plugin to declare the appropriate [permission](/plugins/permissions) in its `info.json` manifest. Chatterino cannot guarantee safety for all possible plugin code, so only install plugins you trust.
+
+<Note>
+  `io.popen` and `io.tmpfile` are explicitly disabled and will return an error when called.
+</Note>
+
+## Installing a plugin
+
+<Steps>
+  <Step title="Locate the Plugins directory">
+    Chatterino stores plugins alongside your settings and logs. The `Plugins` directory is in the app data folder:
+
+    - **Windows**: `%APPDATA%\Chatterino2\Plugins`
+    - **macOS**: `~/Library/Application Support/Chatterino2/Plugins`
+    - **Linux**: `~/.local/share/Chatterino2/Plugins`
+  </Step>
+  <Step title="Add the plugin directory">
+    Each plugin lives in its own subdirectory. Create a folder with a unique name and place the plugin files inside it:
+
+    ```
+    Plugins/
+    └── my_plugin/
+        ├── init.lua
+        ├── info.json
+        └── data/
+    ```
+  </Step>
+  <Step title="Enable the plugin in settings">
+    Open Chatterino settings and navigate to **Plugins**. Your plugin will appear in the list. Toggle it on to load it.
+  </Step>
+</Steps>
+
+## Enabling and disabling plugins
+
+Plugins can be toggled in **Settings → Plugins**. When you enable a plugin, Chatterino loads and executes `init.lua`. When you disable it, the plugin is unloaded and its commands are removed.
+
+Reloading a plugin restarts the Lua state and re-executes `init.lua` from scratch.
+
+## API reference
+
+Explore the full API surface:
+
+<Columns cols={2}>
+  <Card title="Logging" icon="terminal" href="/plugins/api/logging">
+    Write messages to the Chatterino log at different severity levels.
+  </Card>
+  <Card title="Commands" icon="command" href="/plugins/api/commands">
+    Register custom chat commands and tab completion handlers.
+  </Card>
+  <Card title="Channels" icon="hash" href="/plugins/api/channels">
+    Interact with open channel splits, send messages, and query messages.
+  </Card>
+  <Card title="HTTP" icon="globe" href="/plugins/api/http">
+    Send HTTP requests to external APIs.
+  </Card>
+  <Card title="WebSocket" icon="activity" href="/plugins/api/websocket">
+    Open persistent WebSocket connections to external servers.
+  </Card>
+  <Card title="Messages" icon="message-square" href="/plugins/api/messages">
+    Create rich messages with styled text, mentions, and clickable links.
+  </Card>
+  <Card title="JSON" icon="braces" href="/plugins/api/json">
+    Parse and stringify JSON data.
+  </Card>
+</Columns>
+
+## Example plugin
+
+A complete example plugin is available at [github.com/Mm2PL/Chatterino-test-plugin](https://github.com/Mm2PL/Chatterino-test-plugin).

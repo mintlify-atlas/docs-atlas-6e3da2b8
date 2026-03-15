@@ -1,0 +1,164 @@
+---
+title: "Filters"
+description: "Use filter expressions to show only messages that match specific criteria in a split."
+---
+
+Filters let you attach conditions to individual splits so that only messages matching your expression are displayed. Unlike ignores (which remove messages globally), filters are per-split and non-destructive — the messages still exist and appear in other unfiltered splits.
+
+## How filters work
+
+A filter is a named boolean expression. You assign one or more filters to a specific split from its context menu. When filters are active on a split, a message is shown only if **at least one** assigned filter evaluates to `true` for that message.
+
+Filters do not affect logging, highlights, or mentions — they only change what is rendered in the filtered split.
+
+## Managing filters
+
+<Steps>
+  <Step title="Open the filter settings">
+    Go to **Settings → Filters**, or right-click a split header and choose **Filters** → **Edit filters**.
+  </Step>
+  <Step title="Create a filter">
+    Click **Add** and give the filter a name and an expression.
+  </Step>
+  <Step title="Apply a filter to a split">
+    Right-click the split header, choose **Filters**, and check the filters you want to apply to that split.
+  </Step>
+</Steps>
+
+You can also assign filters via the **Pick filters** hotkey action (configurable in Settings → Keyboard shortcuts).
+
+## Filter expression language
+
+Filter expressions are written in a small typed language. An expression must evaluate to a `Bool`.
+
+### Operators
+
+| Operator | Description |
+|---|---|
+| `&&` | Logical AND |
+| `\|\|` | Logical OR |
+| `!` | Logical NOT |
+| `==`, `!=` | Equality / inequality |
+| `<`, `>`, `<=`, `>=` | Numeric comparison |
+| `contains` | String or list containment |
+| `startswith`, `endswith` | String prefix / suffix test |
+| `match` | Regex match: `identifier match r"pattern"` |
+
+### Available identifiers
+
+These identifiers are available in every filter expression.
+
+#### Author
+
+| Identifier | Type | Description |
+|---|---|---|
+| `author.name` | String | The sender's login name |
+| `author.user_id` | String | The sender's Twitch user ID |
+| `author.color` | Color | The sender's username color |
+| `author.no_color` | Bool | `true` if the sender has no color set |
+| `author.subbed` | Bool | `true` if the sender is subscribed |
+| `author.sub_length` | Int | Months subscribed (0 if not subbed) |
+| `author.badges` | StringList | List of Twitch badge names the author holds |
+| `author.external_badges` | StringList | List of external badge names (e.g. 7TV badges) |
+
+#### Channel
+
+| Identifier | Type | Description |
+|---|---|---|
+| `channel.name` | String | The channel's login name |
+| `channel.watching` | Bool | `true` if this is the watching (focused) channel |
+| `channel.live` | Bool | `true` if the channel is currently live |
+
+#### Message
+
+| Identifier | Type | Description |
+|---|---|---|
+| `message.content` | String | The full text of the message |
+| `message.length` | Int | Character count of the message |
+
+#### Flags
+
+| Identifier | Type | Description |
+|---|---|---|
+| `flags.highlighted` | Bool | Message triggered a highlight rule |
+| `flags.action` | Bool | `/me` action message |
+| `flags.sub_message` | Bool | Subscription or resub message |
+| `flags.system_message` | Bool | System/status message |
+| `flags.points_redeemed` | Bool | Channel Points redemption |
+| `flags.reward_message` | Bool | Reward message |
+| `flags.first_message` | Bool | User's first message in the channel |
+| `flags.elevated_message` | Bool | Elevated (Hype Chat) message |
+| `flags.hype_chat` | Bool | Hype Chat message |
+| `flags.cheer_message` | Bool | Cheer/bits message |
+| `flags.whisper` | Bool | Whisper message |
+| `flags.reply` | Bool | Reply to another message |
+| `flags.automod` | Bool | Caught by AutoMod |
+| `flags.restricted` | Bool | Sent by a restricted user |
+| `flags.monitored` | Bool | Sent by a monitored user |
+| `flags.shared` | Bool | Shared channel message |
+| `flags.similar` | Bool | Similar/duplicate message |
+| `flags.watch_streak` | Bool | Watch streak message |
+
+#### Channel Point rewards
+
+| Identifier | Type | Description |
+|---|---|---|
+| `reward.title` | String | Title of the redeemed reward |
+| `reward.cost` | Int | Point cost of the reward |
+| `reward.id` | String | UUID of the reward |
+
+### Expression examples
+
+Show only messages from subscribers:
+
+```text
+author.subbed
+```
+
+Show only messages longer than 100 characters:
+
+```text
+message.length > 100
+```
+
+Show messages that mention a keyword or come from a specific user:
+
+```text
+message.content contains "pog" || author.name == "mycoolbot"
+```
+
+Show only channel point redemptions:
+
+```text
+flags.points_redeemed
+```
+
+Show messages from users with the Moderator badge:
+
+```text
+author.badges contains "moderator"
+```
+
+Match messages using a regular expression:
+
+```text
+message.content match r"\bLUL\b"
+```
+
+<Note>
+Filters are evaluated on the **displayed** message text after ignore phrase replacements have been applied.
+</Note>
+
+## Tips
+
+<AccordionGroup>
+  <Accordion title="Multiple filters on one split">
+    When you apply more than one filter to a split, a message is shown if **any** of them matches. This is an OR relationship between filters, not AND. To enforce AND conditions, write a single filter with the `&&` operator.
+  </Accordion>
+  <Accordion title="Filters don't affect the Mentions tab">
+    Highlight rules still fire on filtered messages, and those messages still appear in the Mentions tab regardless of what filters are active.
+  </Accordion>
+  <Accordion title="Debugging a filter">
+    If a filter is not behaving as expected, check whether the expression is typed correctly. Invalid expressions are rejected when you save them — if the filter fails to save, review the expression for type mismatches or unknown identifiers.
+  </Accordion>
+</AccordionGroup>

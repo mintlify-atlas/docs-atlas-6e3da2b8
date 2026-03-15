@@ -1,0 +1,133 @@
+---
+title: "Commands API"
+description: "Register custom chat commands and tab completion handlers in Chatterino7 plugins."
+---
+
+Plugins can register custom commands that users type in the chat input box and provide custom tab completion suggestions.
+
+## `c2.register_command(name, handler)`
+
+Registers a new command. When the user types the command in any channel, `handler` is called.
+
+Returns `true` if the command was registered, or `false` if a command with that name already exists.
+
+<ParamField path="name" type="string" required>
+  The command trigger, including the leading `/`. Example: `"/words"`.
+</ParamField>
+
+<ParamField path="handler" type="function" required>
+  A function that receives a single `CommandContext` table when the command is executed.
+</ParamField>
+
+### `CommandContext`
+
+<ResponseField name="words" type="string[]">
+  The words typed when executing the command, including the trigger itself. For example, typing `/foo bar baz` produces `{"/foo", "bar", "baz"}`.
+</ResponseField>
+
+<ResponseField name="channel" type="Channel">
+  The channel the command was executed in. See the [Channel API](/plugins/api/channels).
+</ResponseField>
+
+```lua
+function cmd_words(ctx)
+    -- ctx.words is a table of words including the trigger
+    -- ctx.channel is the channel the command was run in
+    ctx.channel:add_system_message("Words are: " .. table.concat(ctx.words, " "))
+end
+
+c2.register_command("/words", cmd_words)
+```
+
+### Sending messages from a command
+
+```lua
+function cmd_shout(ctx)
+    table.remove(ctx.words, 1)  -- remove the command name
+    local output = table.concat(ctx.words, " ")
+    ctx.channel:send_message(string.upper(output))
+end
+
+c2.register_command("/shout", cmd_shout)
+```
+
+<Warning>
+  It is possible to trigger your own Lua command with `send_message`, which can cause an infinite loop.
+</Warning>
+
+<Note>
+  Commands registered inside functions (not at the top level of `init.lua`) might not appear in the settings UI immediately. Rebuilding the window by reloading another plugin will fix this.
+</Note>
+
+## Tab completion
+
+### `c2.register_callback(c2.EventType.CompletionRequested, handler)`
+
+Registers a callback that provides custom tab completion suggestions. Chatterino calls `handler` each time the user presses Tab in the input box.
+
+<ParamField path="type" type="c2.EventType.CompletionRequested" required>
+  Must be `c2.EventType.CompletionRequested`.
+</ParamField>
+
+<ParamField path="handler" type="function" required>
+  A function that receives a `CompletionEvent` table and returns a `CompletionList` table.
+</ParamField>
+
+### `CompletionEvent`
+
+<ResponseField name="query" type="string">
+  The word currently being completed (the text before the cursor in the current word).
+</ResponseField>
+
+<ResponseField name="full_text_content" type="string">
+  The entire content of the input box.
+</ResponseField>
+
+<ResponseField name="cursor_position" type="integer">
+  The position of the cursor in the input, measured in Unicode codepoints (not bytes).
+</ResponseField>
+
+<ResponseField name="is_first_word" type="boolean">
+  `true` if `query` is the first word in the input.
+</ResponseField>
+
+### `CompletionList` (return value)
+
+<ResponseField name="values" type="string[]">
+  The list of completion strings to offer.
+</ResponseField>
+
+<ResponseField name="hide_others" type="boolean">
+  When `true`, completions from Chatterino itself (such as emotes and usernames) are suppressed.
+</ResponseField>
+
+### Completion event examples
+
+The table below shows how the `CompletionEvent` fields relate to different input states. `│` marks the cursor position.
+
+| Input | `query` | `full_text_content` | `cursor_position` | `is_first_word` |
+|-------|---------|--------------------|--------------------|------------------|
+| `foo│` | `foo` | `foo` | 3 | `true` |
+| `fo│o` | `fo` | `foo` | 2 | `true` |
+| `foo bar│` | `bar` | `foo bar` | 7 | `false` |
+| `foo │bar` | `foo` | `foo bar` | 4 | `false` |
+
+### Completion example
+
+```lua
+function string.startswith(s, other)
+    return string.sub(s, 1, string.len(other)) == other
+end
+
+c2.register_callback(
+    c2.EventType.CompletionRequested,
+    function(event)
+        if ("!join"):startswith(event.query) then
+            ---@type CompletionList
+            return { hide_others = true, values = { "!join" } }
+        end
+        ---@type CompletionList
+        return { hide_others = false, values = {} }
+    end
+)
+```

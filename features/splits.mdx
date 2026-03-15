@@ -1,0 +1,160 @@
+---
+title: "Splits"
+description: "Arrange multiple Twitch and Kick channels side by side in Chatterino7's split-based layout."
+---
+
+Chatterino7 organizes chat into **splits** — individually scrollable chat windows that you can arrange in a grid inside tabs. Each split connects to one channel and has its own header, message view, and input box.
+
+## What is a split?
+
+A split is the core chat unit in Chatterino7. It consists of three components:
+
+- **Header** — displays the channel name, viewer count, live indicator, room mode badges (sub-only, slow, emote-only), and action buttons.
+- **Message view** — scrollable list of chat messages with a scrollbar on the right.
+- **Input box** — where you type and send messages.
+
+Multiple splits can live side by side within a single tab, giving you a multi-channel view without switching tabs.
+
+## Opening a new channel
+
+<Steps>
+  <Step title="Use the keyboard shortcut">
+    Press `Ctrl+T` to create a new split in the current tab. A channel selection dialog appears.
+  </Step>
+  <Step title="Type the channel name">
+    Enter the Twitch channel name (or Kick channel name for Kick splits) and press `Enter`.
+  </Step>
+  <Step title="Alternative: use the Add button">
+    Click the **+** button that appears at the right edge of the split area to add a sibling split next to the current one.
+  </Step>
+</Steps>
+
+<Tip>
+You can also type `/popup` in any split's input box to open that channel in a standalone popup window.
+</Tip>
+
+## Split header
+
+The header at the top of each split shows contextual information and gives quick access to common actions.
+
+<CardGroup cols={2}>
+  <Card title="Viewer count" icon="users">
+    Shows the current live viewer count when the channel is live. Hover over it for additional stream info including the stream title and game.
+  </Card>
+  <Card title="Room modes" icon="shield">
+    Displays active chat restrictions in compact form: `sub`, `slow(30)`, `emote`, `follow`, `r9k`.
+  </Card>
+  <Card title="Search" icon="magnifying-glass">
+    Press `Ctrl+F` (with a split focused) to open the in-split search bar. Use `Ctrl+Shift+F` to search across all open splits.
+  </Card>
+  <Card title="Context menu" icon="ellipsis">
+    Click the channel name in the header to open the split menu with options to change channel, pop out, open in browser, reload emotes, and more.
+  </Card>
+</CardGroup>
+
+## Multi-channel layout
+
+You can tile splits both horizontally and vertically within a tab. When you drag one split toward the edge of another, a drop preview shows where it will be placed.
+
+<Steps>
+  <Step title="Add a sibling split">
+    Right-click a split header and choose **Add split right** or **Add split below**, or drag an existing split to a new position.
+  </Step>
+  <Step title="Resize splits">
+    Drag the resize handle between splits to adjust their relative sizes.
+  </Step>
+  <Step title="Move splits">
+    Hold `Alt` and drag a split header to move it to a different position in the grid.
+  </Step>
+</Steps>
+
+<Note>
+Split layouts are saved per-tab and restored when you reopen Chatterino7.
+</Note>
+
+## Tab system
+
+Splits are grouped into tabs managed by the Notebook widget at the top of the main window.
+
+| Action | Shortcut |
+|---|---|
+| New tab | `Ctrl+Shift+T` |
+| Close tab | `Ctrl+Shift+W` |
+| Next tab | `Ctrl+Tab` |
+| Previous tab | `Ctrl+Shift+Tab` |
+| Select tab by index | `Ctrl+1` through `Ctrl+8` |
+| Select last tab | `Ctrl+9` |
+| New split in current tab | `Ctrl+T` |
+| Close focused split | `Ctrl+W` |
+| Reopen closed split | `Ctrl+G` |
+
+Tabs show unread message indicators and turn a highlighted color when your username is mentioned.
+
+## Popup windows
+
+Any split or entire tab can be detached into a floating popup window:
+
+- Press `Ctrl+N` to pop out the focused split into a new window.
+- Press `Ctrl+Shift+N` to pop out the entire current tab as a new window.
+- Right-click a split header and choose **Popup** for the same effect.
+
+Popup windows are fully functional — you can chat, apply filters, and run commands from them.
+
+## Overlay mode
+
+Press `Ctrl+Alt+N` to open an overlay popup for the focused split. The overlay window can be made click-through using `Ctrl+Shift+U`.
+
+## Split context menu
+
+Right-click anywhere in the message view to access the split context menu. From a split header click the icon in the top-left for the full menu.
+
+<AccordionGroup>
+  <Accordion title="Channel actions">
+    - **Change channel** (`Ctrl+R`) — connect the split to a different channel.
+    - **Close** (`Ctrl+W`) — remove the split.
+    - **Popup** — detach into a floating window.
+    - **Open in browser** — open the Twitch channel page.
+    - **Open mod view** — open Twitch's mod view in the browser.
+    - **Open stream in browser player** — watch in the browser.
+    - **Open in Streamlink** — watch via Streamlink.
+  </Accordion>
+  <Accordion title="Emote and message actions">
+    - **Reload emotes** (`F5`) — refresh channel, subscriber, and global emotes.
+    - **Clear messages** — wipe the local message history in this split.
+    - **Reconnect** (`Ctrl+F5`) — reconnect the IRC/WebSocket connection.
+  </Accordion>
+  <Accordion title="Filters">
+    Apply saved filter rules to the split to show only messages matching your criteria. See the [Filters](/features/filters) page for details.
+  </Accordion>
+</AccordionGroup>
+
+## Kick support
+
+<Note>
+Experimental Kick support was added in Chatterino7 **7.5.5-beta.1**.
+</Note>
+
+You can open Kick channels in splits alongside your Twitch channels. Kick splits support reading and sending messages. Some Twitch-specific features (badges, emotes, sub status) do not apply to Kick channels.
+
+To open a Kick channel, enter its name in the channel selection dialog. Kick channels are identified separately from Twitch channels.
+
+## Keyboard shortcuts for split management
+
+| Action | Shortcut |
+|---|---|
+| Focus split to the left | `Alt+Left` |
+| Focus split to the right | `Alt+Right` |
+| Focus split above | `Alt+Up` |
+| Focus split below | `Alt+Down` |
+| Scroll page up | `PgUp` |
+| Scroll page down | `PgDown` |
+| Scroll to top | `Ctrl+Home` |
+| Scroll to bottom | `Ctrl+End` |
+| Search current channel | `Ctrl+F` |
+| Search all channels | `Ctrl+Shift+F` |
+| Create clip | `Alt+X` |
+| Toggle moderation mode | (configurable) |
+
+<Tip>
+All keyboard shortcuts are configurable in **Settings → Keyboard shortcuts**. See the [Hotkeys](/features/hotkeys) page for the full reference.
+</Tip>

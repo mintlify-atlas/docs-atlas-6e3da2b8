@@ -1,0 +1,18 @@
+---
+title: "FreeBSD"
+description: "Chatterino7 on FreeBSD must be built from source. Follow the building guide to compile and run it."
+---
+
+There are no prebuilt binaries for FreeBSD. You must compile Chatterino7 yourself.
+
+<Card title="Building on FreeBSD" icon="hammer" href="/building/freebsd">
+  Step-by-step instructions to build Chatterino7 on FreeBSD 14.0-RELEASE and later.
+</Card>
+
+## Notes
+
+- The FreeBSD build is tested on FreeBSD 14.0-RELEASE (amd64). It is expected to work on older releases, other architectures, and FreeBSD 15.0-SNAP, but these are not officially verified.
+- The minimum supported Qt version for FreeBSD is Qt 6.6.0.
+- All dependencies are available in the FreeBSD package tree (`pkg`) or the ports collection.
+
+Once built, first-launch setup is the same as on any other platform: go to **File → Settings → Accounts** to add your Twitch account, then open a channel with the **+** button.

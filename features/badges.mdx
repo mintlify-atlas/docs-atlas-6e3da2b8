@@ -1,0 +1,51 @@
+---
+title: "Badges"
+description: "7TV subscriber and staff badges rendered in chat, with support for animated badge images and a setting to disable animation."
+---
+
+7TV awards badges to subscribers, staff members, and special event participants. Chatterino7 renders these badges inline in chat messages, next to the username, just like Twitch's own sub and mod badges.
+
+## What 7TV badges look like
+
+7TV badges appear in the badge area at the left of each chat message, before the username. Each badge has:
+
+- A **name** in the format `7tv:<badge name>` (for example, `7tv:NNYS 2024`), used internally for badge filtering.
+- A **tooltip** shown on hover, describing what the badge represents.
+- An **image set** with multiple resolution variants (1x, 2x, 3x, 4x) served from the 7TV CDN.
+
+## Animated badges
+
+7TV badges can be animated (for example, a looping GIF or AVIF). By default, Chatterino7 plays the animated version. If you prefer static badges — for performance or visual preference — you can disable animation:
+
+1. Go to **File → Settings**.
+2. Open the **7TV** tab.
+3. Uncheck **Animate 7TV badges**.
+
+<Note>
+  The setting to disable animated 7TV badges was added in **7.5.2-beta.1**.
+</Note>
+
+When animation is disabled, the badge image set is created using the static variant of each image, so the badge still appears but does not move.
+
+## How badges are loaded
+
+Badges are delivered via the **7TV EventAPI** `COSMETIC_CREATE` dispatch, the same mechanism used for name paints. When Chatterino7 subscribes to a channel, 7TV pushes any badge cosmetics held by users in that channel.
+
+The `SeventvBadges` registry extends a shared `BadgeRegistry` base class. Each badge is stored by its 7TV badge ID. When a message is rendered, Chatterino7 checks the sender's user ID against the badge registry and prepends any matching badges to the message.
+
+## Real-time badge updates
+
+Because badges arrive over the EventAPI, there is no need to restart Chatterino7 when 7TV grants or revokes a badge:
+
+- **Grant**: A `ENTITLEMENT_CREATE` event with `kind: BADGE` triggers a badge lookup and assignment.
+- **Revoke**: A `ENTITLEMENT_DELETE` event removes the badge assignment. The badge disappears from new messages immediately.
+
+## Badge name format
+
+Badge names follow the pattern `7tv:<display name>`. This format is intentional: it namespaces 7TV badges away from Twitch and other providers when using Chatterino7's badge filtering features (**Settings → Highlights → Badges**).
+
+## Settings reference
+
+| Setting | Location | Description |
+|---------|----------|-------------|
+| Animate 7TV badges | **Settings → 7TV** | Toggles animated playback for 7TV badge images. When off, the static variant is used. |

@@ -1,0 +1,261 @@
+---
+title: Release process
+description: How stable releases, beta releases, and nightly builds are published for Chatterino7.
+---
+
+Chatterino7 follows a structured release process with three tiers: nightly builds, beta releases, and stable releases.
+
+## Versioning scheme
+
+Chatterino7 uses the `7.x.x` versioning scheme, distinct from the upstream Chatterino 2 `2.x.x` scheme. The major version `7` is permanent and identifies this fork.
+
+For beta releases, the version string uses a `-beta.N` suffix:
+
+```
+7.5.5          ← stable
+7.5.5-beta.1   ← beta
+```
+
+### Version comparison with upstream
+
+Because Chatterino7 uses `7.x.x` and upstream uses `2.y.y`, a naive version comparison would incorrectly treat switching from Chatterino7 to an upstream build as a downgrade. Chatterino7 preemptively treats comparisons between `7.x.x` and `2.y.y` as upgrades to prevent confusing update prompts.
+
+The version string lives in `src/common/Version.hpp`:
+
+```cpp
+inline const QString CHATTERINO_VERSION = QStringLiteral("7.5.5-beta.1");
+```
+
+## Nightly builds
+
+A nightly build is published automatically on every commit to the `chatterino7` branch. Download the latest nightly from the [nightly-build release tag](https://github.com/SevenTV/chatterino7/releases/tag/nightly-build).
+
+Nightly builds are identified at runtime through the `CHATTERINO_NIGHTLY_BUILD` CMake flag, which is set `ON` by the CI pipeline for nightly runs:
+
+```cmake
+option(CHATTERINO_NIGHTLY_BUILD "Specifies whether this is a nightly build." OFF)
+```
+
+## Making a beta release
+
+Use the following checklist when cutting a beta release. The example version used below is `7.x.x-beta.1` (adjust to the actual release).
+
+### Before the release PR
+
+- [ ] Confirm there are no issues or PRs still labeled for this release. If there are, remove the label or milestone.
+- [ ] Verify that the OAuth scopes in `src/providers/twitch/TwitchAccountManager.cpp` match the ones in the website repo.
+
+### In the release PR
+
+<Steps>
+  <Step title="Update the version in Version.hpp">
+    ```diff
+    - inline const QString CHATTERINO_VERSION = QStringLiteral("7.5.4");
+    + inline const QString CHATTERINO_VERSION = QStringLiteral("7.5.5-beta.1");
+    ```
+  </Step>
+  <Step title="Update the version in CMakeLists.txt">
+    `CMakeLists.txt` only accepts whole versions. Round up to the next stable release:
+
+    ```diff
+      project(chatterino
+    -     VERSION 7.5.4
+    +     VERSION 7.5.5
+          DESCRIPTION "Chat client for twitch.tv"
+      )
+    ```
+  </Step>
+  <Step title="Add a release entry to the AppData XML">
+    Edit `resources/com.chatterino.chatterino.appdata.xml`. Beta releases use a tilde instead of a period before the beta number:
+
+    ```diff
+      <releases>
+    +   <release version="7.5.5~beta1" date="2025-01-01">
+    +       <url>https://github.com/SevenTV/chatterino7/releases/tag/v7.5.5-beta.1</url>
+    +   </release>
+          <release version="7.5.4" date="2024-12-01">
+    ```
+  </Step>
+  <Step title="Update the installer version in chatterino-installer.iss">
+    This also rounds up to the next stable release:
+
+    ```diff
+      #define MyAppName "Chatterino"
+    - #define MyAppVersion "7.5.4"
+    + #define MyAppVersion "7.5.5"
+    ```
+  </Step>
+  <Step title="Update the changelog">
+    Move entries from `## Unversioned` into a new versioned section. Leave the `## Unversioned` line in place:
+
+    ```diff
+     ## Unversioned
+    +
+    + ## 7.5.5-beta.1
+
+     - Bugfix: Fixed ...
+    ```
+  </Step>
+</Steps>
+
+### After the PR is merged
+
+<Steps>
+  <Step title="Tag the release">
+    ```bash
+    git tag v7.5.5-beta.1 --annotate --message v7.5.5-beta.1
+    git push origin v7.5.5-beta.1
+    ```
+  </Step>
+  <Step title="Trigger the installer workflow if needed">
+    If the tag was created after CI finished on the main branch, manually run the [create-installer](https://github.com/SevenTV/chatterino7/actions/workflows/create-installer.yml) workflow.
+  </Step>
+  <Step title="Verify the website changelog is up to date">
+    Check that the changelog on the Chatterino website reflects the new beta.
+  </Step>
+</Steps>
+
+### Prepare the binaries
+
+After all GitHub Actions have finished:
+
+<Steps>
+  <Step title="Download artifacts">
+    From the **Create installer** action for the tagged commit, download:
+    - `Chatterino.Installer.exe`
+
+    From the **Build** action for the tagged commit, download and rename:
+    - `Chatterino-ubuntu-20.04-*.deb` → `Chatterino-Ubuntu-20.04.deb`
+    - `Chatterino-ubuntu-22.04-*.deb` → `Chatterino-Ubuntu-22.04.deb`
+    - `Chatterino-ubuntu-24.04-*.deb` → `Chatterino-Ubuntu-24.04.deb`
+    - `chatterino-windows-x86-64-*-symbols.pdb.7z` → `Chatterino-Windows-debug-symbols.pdb.7z`
+    - `chatterino-windows-x86-64-*.zip` (kept for portable release)
+  </Step>
+  <Step title="Build the portable Windows release">
+    ```bash
+    # Unzip the Windows build
+    unzip chatterino-windows-x86-64-*.zip
+
+    # Edit modes file
+    echo "portable" > Chatterino2/modes
+
+    # Copy updater from a previous portable release
+    # updater.1/ must contain ChatterinoUpdater.exe,
+    # ICSharpCode.SharpZipLib.dll, and SharpZipLib_LICENSE.txt
+
+    # Re-zip
+    zip -r Chatterino.Portable.zip Chatterino2
+    ```
+  </Step>
+  <Step title="Generate checksums">
+    ```bash
+    sha256sum * > sha256-checksums.txt
+    ```
+  </Step>
+  <Step title="Verify the release structure">
+    ```
+    .
+    ├── Chatterino-10.15.dmg
+    ├── Chatterino.dmg
+    ├── Chatterino.Installer.exe
+    ├── Chatterino.Portable.zip
+    ├── Chatterino-Ubuntu-20.04.deb
+    ├── Chatterino-Ubuntu-22.04.deb
+    ├── Chatterino-Ubuntu-24.04.deb
+    ├── Chatterino-Windows-debug-symbols.pdb.7z
+    └── sha256-checksums.txt
+    ```
+  </Step>
+  <Step title="Notarize the macOS releases">
+    ```bash
+    xcrun notarytool submit Chatterino-10.15.dmg --wait \
+      --keychain-profile notarytool-password \
+      --keychain /path/to/chatterino.keychain-db
+
+    xcrun notarytool submit Chatterino.dmg --wait \
+      --keychain-profile notarytool-password \
+      --keychain /path/to/chatterino.keychain-db
+    ```
+  </Step>
+  <Step title="Create the GitHub release">
+    Create a new GitHub release and upload all files from your release directory.
+  </Step>
+</Steps>
+
+## Making a stable release
+
+The stable release process is the same as beta, with the following differences:
+
+<AccordionGroup>
+  <Accordion title="Version.hpp — remove the beta suffix">
+    ```diff
+    - inline const QString CHATTERINO_VERSION = QStringLiteral("7.5.5-beta.1");
+    + inline const QString CHATTERINO_VERSION = QStringLiteral("7.5.5");
+    ```
+  </Accordion>
+  <Accordion title="CMakeLists.txt — update to the stable version">
+    This step is not needed if you already bumped the version for the beta. If you did not make a beta release, update it now:
+
+    ```diff
+      project(chatterino
+    -     VERSION 7.5.4
+    +     VERSION 7.5.5
+          DESCRIPTION "Chat client for twitch.tv"
+      )
+    ```
+  </Accordion>
+  <Accordion title="AppData XML — add a stable entry above the beta entry">
+    ```diff
+      <releases>
+    +   <release version="7.5.5" date="2025-02-01">
+    +       <url>https://github.com/SevenTV/chatterino7/releases/tag/v7.5.5</url>
+    +   </release>
+          <release version="7.5.5~beta1" date="2025-01-01">
+    ```
+  </Accordion>
+  <Accordion title="Installer version — update to the stable version">
+    ```diff
+    - #define MyAppVersion "7.5.4"
+    + #define MyAppVersion "7.5.5"
+    ```
+  </Accordion>
+  <Accordion title="Changelog — add a stable version section">
+    ```diff
+     ## Unversioned
+    +
+    + ## 7.5.5
+
+     ## 7.5.5-beta.1
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Additional steps for stable releases only
+
+- [ ] Add the `skip-changelog-checker` label to the release PR.
+- [ ] Verify that GitHub API credentials for the `chatterino-ci` user are still valid (WinGet and Homebrew personal access tokens).
+- [ ] After the release is published, re-run the **Publish Homebrew Cask on Release** action.
+- [ ] Update links on the Chatterino website to point to the new release.
+- [ ] Remove the "hold for release" label from all issues and PRs.
+
+## CI/CD pipeline overview
+
+The following workflows are involved in building and releasing:
+
+| Workflow | Trigger | Purpose |
+| --- | --- | --- |
+| `build.yml` | Push, PR | Builds on Windows, Ubuntu, macOS |
+| `test.yml` | Push, PR | Runs unit tests |
+| `test-windows.yml` | Push, PR | Windows-specific tests |
+| `test-macos.yml` | Push, PR | macOS-specific tests |
+| `test-arch-linux.yml` | Push, PR | Arch Linux tests |
+| `create-installer.yml` | Tag push, manual | Builds the Windows installer |
+| `winget.yml` | Release published | Submits to WinGet |
+| `homebrew.yml` | Release published | Updates the Homebrew cask |
+| `check-formatting.yml` | PR | Validates clang-format |
+| `clang-tidy.yml` | PR | Static analysis |
+| `changelog-check.yml` | PR | Ensures a changelog entry exists |
+
+<Note>
+  If you create a release tag after CI has already finished on the branch, you must manually trigger `create-installer.yml` from the GitHub Actions UI.
+</Note>

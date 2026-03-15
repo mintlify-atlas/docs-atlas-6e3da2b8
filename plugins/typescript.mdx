@@ -1,0 +1,119 @@
+---
+title: "TypeScript plugin development"
+description: "Use TypeScript with TypeScriptToLua to write type-checked Chatterino7 plugins with full API coverage."
+---
+
+Chatterino7 plugins are written in Lua, but you can author them in TypeScript using [TypeScriptToLua](https://typescripttolua.github.io) (TSTL). TSTL compiles TypeScript to idiomatic Lua, giving you static type checking, autocompletion, and refactoring support during development.
+
+<Warning>
+  TypeScript plugins are harder to debug at runtime because stack traces and error messages refer to the compiled Lua output, not your original TypeScript source.
+</Warning>
+
+## Type definitions
+
+Two sets of type definitions are available:
+
+### `chatterino.d.ts`
+
+TypeScript type definitions covering the entire `c2` namespace and the `chatterino.json` module. These are located in the `docs/` directory of the Chatterino source repository.
+
+Key declarations include:
+
+- `c2.log`, `c2.register_command`, `c2.register_callback`, `c2.later`
+- `c2.Channel` class with all instance and static methods
+- `c2.HTTPRequest` and `c2.HTTPResponse` classes
+- `c2.WebSocket` interface
+- `c2.Message`, `c2.MessageFlag`, `c2.MessageElementFlag`, `c2.LinkType`
+- `c2.TwitchAccount` class
+- All enums: `c2.LogLevel`, `c2.ChannelType`, `c2.HTTPMethod`, `c2.EventType`, `c2.FontStyle`, `c2.MessageContext`
+- `chatterino.json` module with `parse`, `stringify`, and `null`
+
+### LuaLS type definitions
+
+Type annotations for [LuaLS](https://luals.github.io/) (the Lua Language Server) are available in the `docs/lua-meta/` directory of the source repository:
+
+- `docs/lua-meta/globals.lua` — all `c2.*` types and functions
+- `docs/lua-meta/json.lua` — the `chatterino.json` module
+
+Add the `lua-meta/` directory to `"Lua.workspace.library"` in your editor's LuaLS configuration to enable inline documentation and type checking without compiling.
+
+## Setting up a TypeScript plugin
+
+<Steps>
+  <Step title="Install TypeScriptToLua">
+    ```bash
+    npm install -g typescript-to-lua
+    ```
+  </Step>
+  <Step title="Initialize a project">
+    Create a `package.json` and `tsconfig.json` in your plugin directory:
+
+    ```json tsconfig.json
+    {
+      "compilerOptions": {
+        "target": "ESNext",
+        "lib": ["ESNext"],
+        "moduleResolution": "node",
+        "strict": true,
+        "types": ["typescript-to-lua/language-extensions"]
+      },
+      "tstl": {
+        "luaTarget": "5.4",
+        "noHeader": true,
+        "outDir": "."
+      }
+    }
+    ```
+  </Step>
+  <Step title="Add the type definitions">
+    Copy `chatterino.d.ts` from the Chatterino source repository into your project directory, then reference it in your TypeScript source:
+
+    ```ts
+    /// <reference path="./chatterino.d.ts" />
+    ```
+  </Step>
+  <Step title="Write your plugin">
+    TypeScript declarations map directly to the Lua API:
+
+    ```ts init.ts
+    /// <reference path="./chatterino.d.ts" />
+
+    function cmdWords(ctx: c2.CommandContext): void {
+        ctx.channel.add_system_message(
+            "Words are: " + ctx.words.join(" ")
+        );
+    }
+
+    c2.register_command("/words", cmdWords);
+    ```
+  </Step>
+  <Step title="Compile to Lua">
+    ```bash
+    tstl
+    ```
+
+    This produces `init.lua` alongside your `init.ts`. Place the compiled output and `info.json` in the `Plugins/` directory as usual.
+  </Step>
+</Steps>
+
+## Limitations
+
+- **Runtime debugging is harder** — errors reference the compiled Lua, not the original TypeScript. Line numbers will not match.
+- **No source maps** — TSTL does not currently produce Lua source maps recognized by Chatterino.
+- **TSTL runtime library** — some TSTL features require a small runtime preamble. Check that your `tsconfig.json` settings do not produce imports that conflict with Chatterino's custom `require()` searcher.
+
+## LuaLS (without TypeScript)
+
+If you prefer to stay in Lua, use the LuaLS type definitions for in-editor type checking and autocompletion without any compilation step:
+
+1. Install the [Lua Language Server](https://luals.github.io/) extension for your editor.
+2. Add the `docs/lua-meta/` directory to `"Lua.workspace.library"` in your workspace settings.
+3. Use the `---@type` and `---@param` annotations for additional checking:
+
+```lua
+---@type c2.Channel
+local ch = c2.Channel.by_name("pajlada")
+
+---@type CompletionList
+return { hide_others = false, values = {} }
+```

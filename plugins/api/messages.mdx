@@ -1,0 +1,265 @@
+---
+title: "Message API"
+description: "Create rich chat messages with styled text, mentions, and clickable links in Chatterino7 plugins."
+---
+
+The Message API lets you construct rich messages with custom styling, colors, tooltips, and clickable links, then inject them into any channel client-side.
+
+## `c2.Message.new(data)`
+
+Creates a new message from a table.
+
+<ParamField path="data" type="MessageInit" required>
+  Initialization table. All fields are optional.
+
+  <Expandable title="MessageInit fields">
+    <ResponseField name="id" type="string">
+      A unique identifier for the message. Used by `find_message_by_id` and `replace_message`.
+    </ResponseField>
+    <ResponseField name="flags" type="c2.MessageFlag">
+      Message flags. See [`c2.MessageFlag`](#c2messageflag) below.
+    </ResponseField>
+    <ResponseField name="highlight_color" type="string | nil">
+      Background highlight color as a hex string (e.g. `"#80ff0000"` for semi-transparent red).
+    </ResponseField>
+    <ResponseField name="parse_time" type="number">
+      Time the message was parsed, in milliseconds since epoch.
+    </ResponseField>
+    <ResponseField name="message_text" type="string">
+      The plain text content of the message (used by filters).
+    </ResponseField>
+    <ResponseField name="login_name" type="string">
+      The login name of the sender.
+    </ResponseField>
+    <ResponseField name="display_name" type="string">
+      The display name of the sender.
+    </ResponseField>
+    <ResponseField name="user_id" type="string">
+      The Twitch user ID of the sender.
+    </ResponseField>
+    <ResponseField name="channel_name" type="string">
+      The name of the channel this message belongs to.
+    </ResponseField>
+    <ResponseField name="username_color" type="string">
+      The color of the username.
+    </ResponseField>
+    <ResponseField name="elements" type="MessageElementInit[]">
+      Array of element initialization tables. See [element types](#element-types) below.
+    </ResponseField>
+  </Expandable>
+</ParamField>
+
+## Frozen messages
+
+Once a message is added to a channel with `Channel:add_message()`, it becomes **frozen** (immutable). Attempting to modify a frozen message's elements raises an error. You can check the state with the `frozen` property:
+
+```lua
+local my_msg = c2.Message.new({ id = "foobar" })
+assert(not my_msg.frozen)
+
+my_channel:add_message(my_msg)
+assert(my_msg.frozen)
+```
+
+The `flags` property can still be modified on a frozen message.
+
+## Message methods
+
+### `Message:elements()`
+
+Returns a reference to the message's element list. You can index it, iterate over it, and remove elements with `elements:erase(index)`.
+
+```lua
+local my_msg = c2.Message.new({
+    id = "foo",
+    elements = {
+        { type = "text", text = "foo" },
+        { type = "text", text = "bar" },
+        { type = "text", text = "baz" },
+    }
+})
+
+local elements = my_msg:elements()
+assert(#elements == 3)
+assert(elements[1].words[1] == "foo")
+assert(elements[2].words[1] == "bar")
+
+elements:erase(2)  -- remove "bar"
+assert(#elements == 2)
+assert(elements[2].words[1] == "baz")
+```
+
+### `Message:append_element(data)`
+
+Creates an element from a table and appends it to the message. The table format is the same as entries in the `elements` array passed to `Message.new()`.
+
+```lua
+local my_msg = c2.Message.new({ id = "foo" })
+my_msg:append_element({
+    type = "text",
+    text = "My text element",
+})
+```
+
+## Element types
+
+Each element has a `type` field that determines its kind and which other fields are recognized.
+
+### `"text"` element
+
+A text element that may wrap across lines.
+
+<ResponseField name="type" type="string">
+  Must be `"text"`.
+</ResponseField>
+<ResponseField name="text" type="string">
+  The text content. The string is split on whitespace into individual words.
+</ResponseField>
+<ResponseField name="color" type="MessageColor">
+  Text color. Use `"text"` for the theme's default text color, `"link"` for link color, `"system"` for system message color, or any hex color string.
+</ResponseField>
+<ResponseField name="tooltip" type="string">
+  HTML tooltip shown on hover.
+</ResponseField>
+<ResponseField name="flags" type="c2.MessageElementFlag">
+  Element display flags.
+</ResponseField>
+<ResponseField name="trailing_space" type="boolean">
+  Whether to add a trailing space after this element. Defaults to `true`.
+</ResponseField>
+<ResponseField name="link" type="c2.Link">
+  Action triggered when the user clicks this element. See [`c2.LinkType`](#c2linktype-enum).
+</ResponseField>
+<ResponseField name="style" type="c2.FontStyle">
+  Font style for this element.
+</ResponseField>
+
+### `"single-line-text"` element
+
+Like `"text"` but never wraps across lines. Accepts the same fields.
+
+### `"mention"` element
+
+A username mention with optional coloring based on user settings.
+
+<ResponseField name="type" type="string">
+  Must be `"mention"`.
+</ResponseField>
+<ResponseField name="display_name" type="string" required>
+  The display name shown in the message (e.g. `"@User"`).
+</ResponseField>
+<ResponseField name="login_name" type="string" required>
+  The Twitch login name of the mentioned user.
+</ResponseField>
+<ResponseField name="fallback_color" type="MessageColor" required>
+  Color used when "Colorize @usernames" is disabled in settings.
+</ResponseField>
+<ResponseField name="user_color" type="MessageColor" required>
+  Color used when "Colorize @usernames" is enabled in settings.
+</ResponseField>
+
+### `"timestamp"` element
+
+Displays a formatted timestamp.
+
+<ResponseField name="type" type="string">
+  Must be `"timestamp"`.
+</ResponseField>
+<ResponseField name="time" type="number">
+  Time in milliseconds since epoch. Defaults to the current time if omitted.
+</ResponseField>
+
+### `"twitch-moderation"` element
+
+Shows the standard Twitch moderation buttons (timeout, ban, etc.).
+
+<ResponseField name="type" type="string">
+  Must be `"twitch-moderation"`.
+</ResponseField>
+
+### `"linebreak"` element
+
+Forces a line break at this position.
+
+<ResponseField name="type" type="string">
+  Must be `"linebreak"`.
+</ResponseField>
+
+### `"reply-curve"` element
+
+Renders the visual indicator for reply threads.
+
+<ResponseField name="type" type="string">
+  Must be `"reply-curve"`.
+</ResponseField>
+
+## `MessageElement` properties
+
+All element types share these base properties (read from a `MessageElement` reference returned by `Message:elements()`):
+
+<ResponseField name="flags" type="c2.MessageElementFlag">
+  The element's display flags.
+</ResponseField>
+<ResponseField name="tooltip" type="string">
+  The tooltip text.
+</ResponseField>
+<ResponseField name="trailing_space" type="boolean">
+  Whether a trailing space follows this element.
+</ResponseField>
+<ResponseField name="link" type="c2.Link">
+  The click action for this element.
+</ResponseField>
+
+## `c2.LinkType` enum
+
+Used in the `link` field of element initialization tables.
+
+| `LinkType` | `link.value` content | Action on click |
+|------------|---------------------|-----------------|
+| `c2.LinkType.Url` | Any URI | Open in browser |
+| `c2.LinkType.UserInfo` | Twitch username or `id:TwitchID` | Open usercard |
+| `c2.LinkType.UserAction` | Command or message text | Send as message |
+| `c2.LinkType.JumpToChannel` | Channel name | Go to open split |
+| `c2.LinkType.CopyToClipboard` | Any Unicode text | Copy to clipboard |
+| `c2.LinkType.JumpToMessage` | Message ID | Highlight message in current split |
+| `c2.LinkType.InsertText` | Any text | Insert into input box |
+
+## `c2.MessageFlag`
+
+Commonly used flags for `Message.new()`. The exact numeric values are not stable — always use the named constants.
+
+| Flag | Description |
+|------|-------------|
+| `c2.MessageFlag.None` | No flags |
+| `c2.MessageFlag.System` | System message styling |
+| `c2.MessageFlag.Highlighted` | Highlighted message background |
+| `c2.MessageFlag.DoNotLog` | Exclude from logs |
+| `c2.MessageFlag.Centered` | Center the message horizontally |
+| `c2.MessageFlag.Collapsed` | Start in collapsed state |
+
+## Full example
+
+```lua
+c2.register_command("/testing", function(ctx)
+    ctx.channel:add_message(c2.Message.new({
+        id = "myplugin-1234",
+        highlight_color = "#80ff0000",
+        flags = c2.MessageFlag.Highlighted,
+        elements = {
+            {
+                type = "text",
+                color = "link",
+                text = "Hover me!",
+                tooltip = "<h1>This is text from my plugin</h1>"
+            },
+            {
+                type = "mention",
+                display_name = "@User",
+                login_name = "twitchdev",
+                fallback_color = "text",
+                user_color = "blue",
+            }
+        }
+    }))
+end)
+```

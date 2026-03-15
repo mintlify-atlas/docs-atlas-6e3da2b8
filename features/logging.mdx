@@ -1,0 +1,125 @@
+---
+title: "Logging"
+description: "Save chat history to plain text files per channel with configurable timestamps and directory."
+---
+
+Chatterino7 can write chat messages to plain text log files as they arrive. Logging is configured in **Settings → Moderation → Logs**.
+
+## Enabling logging
+
+<Steps>
+  <Step title="Open Settings">
+    Press `Ctrl+P` to open Settings.
+  </Step>
+  <Step title="Navigate to Moderation → Logs">
+    Click **Moderation** in the sidebar, then select the **Logs** tab.
+  </Step>
+  <Step title="Enable logging">
+    Check **Enable logging** to start writing messages to disk.
+  </Step>
+</Steps>
+
+## Default log directory
+
+By default, logs are written to a `Logs` subdirectory inside Chatterino7's data folder:
+
+<Tabs>
+  <Tab title="Windows">
+    ```text
+    %APPDATA%\Chatterino2\Logs\
+    ```
+    Example: `C:\Users\YourName\AppData\Roaming\Chatterino2\Logs\`
+  </Tab>
+  <Tab title="macOS">
+    ```text
+    ~/Library/Application Support/Chatterino/Logs/
+    ```
+  </Tab>
+  <Tab title="Linux">
+    ```text
+    ~/.local/share/Chatterino/Logs/
+    ```
+  </Tab>
+  <Tab title="Portable">
+    ```text
+    <app directory>\Logs\
+    ```
+    Applies when a `portable` file exists next to the Chatterino7 executable.
+  </Tab>
+</Tabs>
+
+### Changing the log directory
+
+Click **Select log directory** on the Logs settings page to choose a custom folder. Click **Reset** to revert to the default path. The current disk usage of your logs directory is shown below the path.
+
+## Log file format
+
+Each channel gets its own log file. Files are stored as plain UTF-8 text.
+
+Log lines follow this structure:
+
+```text
+[hh:mm:ss] username: message text
+```
+
+The exact timestamp format is configurable. The **Log file timestamp format** dropdown on the Logs settings page offers these options:
+
+| Format | Example output |
+|---|---|
+| Disable | (no timestamp) |
+| `h:mm` | `9:05` |
+| `hh:mm` | `09:05` |
+| `h:mm a` | `9:05 am` |
+| `hh:mm a` | `09:05 am` |
+| `h:mm:ss` | `9:05:32` |
+| `hh:mm:ss` | `09:05:32` |
+| `h:mm:ss a` | `9:05:32 am` |
+| `hh:mm:ss.zzz` | `9:05:32.450` |
+| `hh:mm:ss.zzz a` | `9:05:32.450 am` |
+
+Where `a` = am/pm suffix and `zzz` = milliseconds.
+
+### Using Twitch timestamps
+
+Enable **Use Twitch's timestamps** to record the time when Twitch's chat server received the message rather than your local system time. This option is useful for correlating logs with Twitch VODs.
+
+<Warning>
+Using Twitch timestamps can result in out-of-order entries in the log file if messages arrive slightly out of sequence. If Twitch's timestamp is unavailable for a message, Chatterino7 falls back to your local clock.
+</Warning>
+
+### Stream logs as separate files
+
+Enable **Store live stream logs as separate files** to write logs for each live stream session into a separate file, making it easier to find logs from a specific broadcast.
+
+## Per-channel logging
+
+By default, when logging is enabled, all channels open in splits are logged. To log only specific channels:
+
+<Steps>
+  <Step title="Enable the channel filter">
+    Check **Only log channels listed below** on the Logs settings page.
+  </Step>
+  <Step title="Add channels">
+    Click **Add** and enter the Twitch channel name you want to log. Repeat for each channel.
+  </Step>
+</Steps>
+
+Channels not in the list will not be logged even if they are open in a split.
+
+## What is logged
+
+- Regular chat messages.
+- Action messages (`/me` commands).
+- System messages (join/part, room mode changes).
+
+Messages from users you have blocked (via the Twitch block list) are **not** logged.
+
+Ignored phrase replacements are applied before logging — if an ignore rule replaces text, the replacement text is what appears in the log.
+
+<Note>
+Chatterino7 does not log message history that occurred before the client connected to the channel. Logs begin from the moment Chatterino7 joins the channel with logging enabled.
+</Note>
+
+## Accessing logs
+
+Click the path link on the Logs settings page to open the log directory in your file manager. You can also run **Open AppData directory** from **Settings → General** to navigate to the root data folder and find the `Logs` subfolder.

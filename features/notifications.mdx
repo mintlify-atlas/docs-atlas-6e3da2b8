@@ -1,0 +1,88 @@
+---
+title: "Notifications"
+description: "Get notified when followed channels go live and when messages mention you in Chatterino7."
+---
+
+Chatterino7 can alert you when channels you watch go live and when you receive mentions or highlights. Notifications are configured in **Settings → Notifications**.
+
+## Live stream notifications
+
+When a Twitch channel you have added to the notification list goes live, Chatterino7 can:
+
+- Show a **system toast notification** (OS-level popup).
+- Play a **notification sound**.
+- **Flash the taskbar** / dock to draw attention to the window.
+- Post a message in the **Live channel** (`/live` virtual channel accessible from the tab bar).
+
+### Adding channels to the notification list
+
+<Steps>
+  <Step title="Open Settings">
+    Press `Ctrl+P` to open Settings.
+  </Step>
+  <Step title="Navigate to Notifications">
+    Click **Notifications** in the left sidebar.
+  </Step>
+  <Step title="Add a channel">
+    Click **Add** and type the Twitch channel name you want to watch for live notifications. The channel does not need to be open in a split.
+  </Step>
+</Steps>
+
+Alternatively, toggle the live notification for the channel currently open in a split using the **Set channel live notification** hotkey action (configurable in Settings → Keyboard shortcuts, Split category).
+
+### Notification settings
+
+| Setting | Description |
+|---|---|
+| **Toast notifications** | Show an OS-level popup when a watched channel goes live. |
+| **Play sound** | Play a sound on live notification. |
+| **Custom sound** | Use a custom audio file instead of the built-in ping. |
+| **Flash taskbar** | Flash the Chatterino7 taskbar entry / dock icon. |
+| **Notify on any channel** | Play the notification sound when any watched channel goes live, even if it isn’t in your notification list (for channels already open in splits). |
+| **Suppress initial notification** | Don’t fire a notification for channels that are already live when Chatterino7 starts. |
+
+<Note>
+If Streamer Mode is enabled and the **Suppress live notifications in streamer mode** option is on, live notifications are silenced while you are streaming.
+</Note>
+
+### The /live channel
+
+The `/live` virtual channel appears in the tab strip. It receives a system message every time a watched channel goes live (or the split detects that a previously-live channel has gone offline). Open a split in this channel to get a running log of live events without needing OS notifications.
+
+## Mention and highlight notifications
+
+Mention-style notifications fire when a highlight rule matches a message. These are controlled per-rule in **Settings → Highlighting** rather than in the Notifications page.
+
+For each highlight rule you can independently enable:
+
+- **Sound** — plays a sound when the rule fires. You can set a custom audio file per rule.
+- **Alert** — flashes the OS taskbar / dock.
+- **Show in Mentions** — the matched message appears in the Mentions tab.
+
+See [Highlights](/features/highlights) for the full rule configuration reference.
+
+## Sound settings
+
+The notification sound (used for both live stream alerts and highlight sounds that use the default) can be customized:
+
+<Steps>
+  <Step title="Open Settings → Notifications">
+    Navigate to the Notifications settings page.
+  </Step>
+  <Step title="Enable custom sound">
+    Check **Use a custom notification sound**.
+  </Step>
+  <Step title="Select a file">
+    Click **Browse** and select a `.wav` or compatible audio file.
+  </Step>
+</Steps>
+
+Individual highlight rules can also have their own separate custom sounds, overriding the global notification sound for that specific rule.
+
+## Live status polling
+
+For channels that are in the notification list but not currently open in any split, Chatterino7 polls the Twitch API every 60 seconds to check their live status. For channels that are open in splits, live status is tracked in real time via Twitch EventSub.
+
+<Tip>
+Add frequently-watched channels to the notification list even if you always have them open in a split — the live message in `/live` still appears and gives you a searchable log of when channels went live.
+</Tip>

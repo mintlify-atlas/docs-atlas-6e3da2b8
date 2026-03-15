@@ -1,0 +1,64 @@
+---
+title: "Building on macOS"
+description: "Build Chatterino7 on macOS using Homebrew and CMake. Tested on macOS 13 with both Intel and Apple Silicon."
+---
+
+Chatterino7 is built and tested in CI on Intel with macOS 13. Local development machines on Apple Silicon (M-series) with macOS 13 are also used.
+
+## Install dependencies
+
+<Steps>
+  <Step title="Install Xcode and Command Line Tools">
+    Install Xcode from the Mac App Store, then open it and go to **Settings → Locations** and activate **Command Line Tools**.
+  </Step>
+  <Step title="Install Homebrew">
+    If you do not have [Homebrew](https://brew.sh/) installed, follow the instructions on the Homebrew website.
+  </Step>
+  <Step title="Install build dependencies">
+    ```bash
+    brew install boost openssl@3 rapidjson cmake qt@6 libavif
+    ```
+  </Step>
+</Steps>
+
+## Build from terminal
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone --recurse-submodules https://github.com/SevenTV/chatterino7.git
+    cd chatterino7
+    ```
+  </Step>
+  <Step title="Create a build directory">
+    ```bash
+    mkdir build && cd build
+    ```
+  </Step>
+  <Step title="Configure with CMake">
+    ```bash
+    cmake -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt@6 ..
+    ```
+
+    <Note>
+      To enable Lua plugins, add `-DCHATTERINO_PLUGINS=ON` to this command.
+    </Note>
+
+    On Intel Macs, Homebrew installs to `/usr/local` instead of `/opt/homebrew`. Adjust the path accordingly:
+
+    ```bash
+    cmake -DCMAKE_PREFIX_PATH=/usr/local/opt/qt@6 ..
+    ```
+  </Step>
+  <Step title="Build">
+    ```bash
+    make
+    ```
+  </Step>
+</Steps>
+
+The built application is at `bin/chatterino.app/Contents/MacOS/chatterino`.
+
+## Other build methods
+
+You can use an IDE such as Qt Creator by applying the same CMake configuration described above through the IDE's project settings. This is not officially documented but works if you are familiar with the IDE.

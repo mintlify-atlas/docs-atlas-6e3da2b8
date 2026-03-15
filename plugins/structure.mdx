@@ -1,0 +1,147 @@
+---
+title: "Plugin file structure"
+description: "Understand the directory layout, entry point, metadata format, and module system for Chatterino7 plugins."
+---
+
+Every plugin is a directory placed inside the Chatterino `Plugins` folder. The directory name becomes the plugin's internal identifier.
+
+## Directory layout
+
+```
+Plugins/
+└── plugin_name/
+    ├── init.lua
+    ├── info.json
+    └── data/
+        └── (your data and config files go here)
+```
+
+<ResponseField name="init.lua" type="file" required>
+  The entry point. Chatterino loads and executes this file when the plugin is enabled. You may split your code across multiple files and load them with `require()`.
+</ResponseField>
+
+<ResponseField name="info.json" type="file" required>
+  Plugin metadata — name, description, authors, version, license, and the list of permissions the plugin requires. See [the schema](#infojson-schema) below.
+</ResponseField>
+
+<ResponseField name="data/" type="directory">
+  Storage directory for plugin data and configuration files. File I/O operations are restricted to this directory. Accessing it requires the `FilesystemRead` or `FilesystemWrite` permission.
+</ResponseField>
+
+## `info.json`
+
+The manifest file describes your plugin to Chatterino. The `version` field must follow [semver 2.0](https://semver.org/). The `license` field should be an [SPDX identifier](https://spdx.org/licenses/).
+
+```json info.json
+{
+  "$schema": "https://raw.githubusercontent.com/Chatterino/chatterino2/master/docs/plugin-info.schema.json",
+  "name": "Test plugin",
+  "description": "This plugin is for testing stuff.",
+  "authors": ["Mm2PL"],
+  "homepage": "https://github.com/Chatterino/Chatterino2",
+  "tags": ["test"],
+  "version": "0.0.0",
+  "license": "MIT",
+  "permissions": []
+}
+```
+
+### `info.json` schema
+
+<ResponseField name="name" type="string" required>
+  Display name shown to the user in the Plugins settings panel.
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Short description shown to the user.
+</ResponseField>
+
+<ResponseField name="authors" type="string[]" required>
+  List of plugin authors.
+</ResponseField>
+
+<ResponseField name="version" type="string" required>
+  [Semver 2.0](https://semver.org/) version string. Examples: `"1.0.0"`, `"0.0.1-beta.1"`.
+</ResponseField>
+
+<ResponseField name="license" type="string" required>
+  SPDX license identifier. Examples: `"MIT"`, `"GPL-2.0-or-later"`.
+</ResponseField>
+
+<ResponseField name="homepage" type="string">
+  Optional URL to the plugin's homepage or repository.
+</ResponseField>
+
+<ResponseField name="tags" type="string[]">
+  Optional list of tags. May be used for plugin discovery in future versions.
+</ResponseField>
+
+<ResponseField name="permissions" type="object[]">
+  List of permission objects the plugin requires. Each object has a single `type` field. See [Permissions](/plugins/permissions) for the full list.
+
+  <Expandable title="permission object">
+    <ResponseField name="type" type="string" required>
+      One of `"FilesystemRead"`, `"FilesystemWrite"`, or `"Network"`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## `require()` module system
+
+Chatterino replaces Lua's default `require()` with a custom searcher. The behavior differs from standard Lua in several important ways:
+
+- Lua's dynamic library searcher is removed — binary modules cannot be loaded
+- `package.path` is ignored
+- Files inside the `data/` directory cannot be loaded
+- Binary chunks (pre-compiled Lua bytecode) are never accepted
+
+When you call `require("modname")`, Chatterino searches in this order:
+
+1. A file relative to the **currently executing file**
+2. A file relative to the **plugin root directory**
+
+Dots in module names are converted to path separators (`/` on Linux and macOS, `\` on Windows).
+
+```lua
+require("stuff")      -- loads Plugins/name/stuff.lua
+require("dir.name")   -- loads Plugins/name/dir/name.lua
+```
+
+<Warning>
+  Attempting to load files from the `data/` directory with `require()` will error. Use `io.open()` to read data files instead.
+</Warning>
+
+## Built-in modules
+
+In addition to your own files, two built-in modules are available:
+
+### `chatterino.json`
+
+A JSON parsing and serialization module bundled with Chatterino. Load it with:
+
+```lua
+local json = require('chatterino.json')
+```
+
+See the [JSON API reference](/plugins/api/json) for full documentation.
+
+## Example: minimal plugin
+
+```lua init.lua
+-- A minimal plugin that registers one command
+c2.register_command("/hello", function(ctx)
+    ctx.channel:add_system_message("Hello, world!")
+end)
+```
+
+```json info.json
+{
+  "$schema": "https://raw.githubusercontent.com/Chatterino/chatterino2/master/docs/plugin-info.schema.json",
+  "name": "Hello World",
+  "description": "Adds a /hello command.",
+  "authors": ["you"],
+  "version": "1.0.0",
+  "license": "MIT",
+  "permissions": []
+}
+```

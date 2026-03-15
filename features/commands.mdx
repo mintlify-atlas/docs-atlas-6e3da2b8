@@ -1,0 +1,201 @@
+---
+title: "Commands"
+description: "Use built-in Twitch commands and create your own custom commands with variable substitution in Chatterino7."
+---
+
+Chatterino7 supports two types of commands: **built-in commands** that map to Twitch IRC or API actions, and **custom user commands** that you define yourself with arbitrary text and variable substitution.
+
+Type any command into the chat input box and press `Enter` to send it. Commands start with `/` by default.
+
+## Built-in Twitch commands
+
+These commands are registered by Chatterino7 and sent to Twitch's API or IRC. They behave the same as Twitch's native chat commands.
+
+### Moderation
+
+| Command | Description |
+|---|---|
+| `/ban <user> [reason]` | Permanently ban a user |
+| `/banid <user-id> [reason]` | Ban a user by their Twitch user ID |
+| `/unban <user>` | Remove a ban or timeout |
+| `/untimeout <user>` | Alias for `/unban` |
+| `/timeout <user> <seconds> [reason]` | Temporarily time out a user |
+| `/warn <user> <reason>` | Issue a warning to a user |
+| `/delete <msg-id>` | Delete a specific message by ID |
+| `/clear` | Delete all messages in chat (broadcaster only) |
+| `/mod <user>` | Grant moderator status |
+| `/unmod <user>` | Remove moderator status |
+| `/vip <user>` | Grant VIP status |
+| `/unvip <user>` | Remove VIP status |
+| `/mods` | List all moderators |
+| `/vips` | List all VIPs |
+
+### Chat settings
+
+| Command | Description |
+|---|---|
+| `/slow <seconds>` | Enable slow mode |
+| `/slowoff` | Disable slow mode |
+| `/subscribers` | Enable subscribers-only mode |
+| `/subscribersoff` | Disable subscribers-only mode |
+| `/emoteonly` | Enable emote-only mode |
+| `/emoteonlyoff` | Disable emote-only mode |
+| `/followers [duration]` | Enable followers-only mode |
+| `/followersoff` | Disable followers-only mode |
+| `/uniquechat` | Enable unique chat (r9k) mode |
+| `/uniquechatoff` | Disable unique chat mode |
+| `/r9kbeta` | Alias for `/uniquechat` |
+| `/r9kbetaoff` | Alias for `/uniquechatoff` |
+| `/shield` | Enable Shield Mode |
+| `/shieldoff` | Disable Shield Mode |
+
+### Channel management
+
+| Command | Description |
+|---|---|
+| `/settitle <title>` | Set the stream title |
+| `/setgame <game>` | Set the stream category |
+| `/raid <channel>` | Start a raid |
+| `/unraid` | Cancel a raid |
+| `/commercial <seconds>` | Start a commercial break |
+| `/shoutout <user>` | Send a shoutout to another channel |
+| `/marker [description]` | Create a stream marker |
+
+### Announcements and messaging
+
+| Command | Description |
+|---|---|
+| `/announce <message>` | Send an announcement (default color) |
+| `/announceblue <message>` | Blue announcement |
+| `/announcegreen <message>` | Green announcement |
+| `/announceorange <message>` | Orange announcement |
+| `/announcepurple <message>` | Purple announcement |
+| `/reply <message>` | Reply to the selected message in thread context |
+| `/w <user> <message>` | Send a whisper |
+| `/color <color>` | Change your username color |
+
+### Polls and predictions
+
+| Command | Description |
+|---|---|
+| `/poll` | Create a poll |
+| `/cancelpoll` | Cancel the active poll |
+| `/endpoll` | End the active poll |
+| `/prediction` | Create a prediction |
+| `/lockprediction` | Lock the active prediction |
+| `/cancelprediction` | Cancel the active prediction |
+| `/completeprediction` | Complete the active prediction |
+
+### Trust and block actions
+
+| Command | Description |
+|---|---|
+| `/block <user>` | Block a user |
+| `/unblock <user>` | Unblock a user |
+| `/lowtrust` | Open the low-trust user panel |
+| `/monitor <user>` | Monitor a user |
+| `/restrict <user>` | Restrict a user |
+| `/unmonitor <user>` | Remove monitor status |
+| `/unrestrict <user>` | Remove restrict status |
+
+### Chatterino-specific commands
+
+These commands control Chatterino7 itself rather than sending anything to Twitch.
+
+| Command | Description |
+|---|---|
+| `/user <username>` | Open the usercard for a username |
+| `/usercard <username>` | Alias for `/user` |
+| `/chatters` | Show the chatter list for the channel |
+| `/uptime` | Display the stream uptime |
+| `/clip` | Create a Twitch clip |
+| `/popout` | Pop out the current split to a new window |
+| `/popup` | Open the channel in a popup |
+| `/clearmessages` | Clear messages in the current split locally |
+| `/streamlink` | Open the channel in Streamlink |
+| `/openurl <url>` | Open a URL in the default browser |
+| `/copy <text>` | Copy text to the clipboard |
+| `/raw <message>` | Send a raw IRC message |
+
+## Custom commands
+
+Custom commands let you define shortcut aliases that expand to longer text before being sent. You manage them in **Settings → Commands**.
+
+<Steps>
+  <Step title="Open Settings">
+    Press `Ctrl+P` to open Settings, then navigate to **Commands**.
+  </Step>
+  <Step title="Add a new command">
+    Click **Add** and enter a trigger name starting with `/` (for example `/gg`).
+  </Step>
+  <Step title="Define the command body">
+    Enter the text the command should expand to. Use variables enclosed in `{}` for dynamic substitution.
+  </Step>
+  <Step title="Save and use it">
+    Save your settings. Type the trigger in any channel's input box and press `Enter`.
+  </Step>
+</Steps>
+
+### Command variables
+
+Variables are substituted when the command is executed. Use the syntax `{variable.name}` or `{variable.name;fallback}` where the fallback is returned if the variable is unavailable.
+
+#### Channel variables
+
+| Variable | Description |
+|---|---|
+| `{channel.name}` | The name of the current channel |
+| `{channel.id}` | The Twitch user ID of the channel |
+| `{stream.game}` | The current game/category (only when live) |
+| `{stream.title}` | The current stream title (only when live) |
+
+#### User variables (requires a selected message context)
+
+| Variable | Description |
+|---|---|
+| `{user.name}` | The login name of the message author |
+| `{msg.id}` | The Twitch message ID |
+| `{msg.text}` | The full text of the message |
+
+#### Your own account
+
+| Variable | Description |
+|---|---|
+| `{my.name}` | Your own Twitch login name |
+| `{my.id}` | Your own Twitch user ID |
+
+#### Positional arguments
+
+When a custom command is invoked with additional words after the trigger, those words are available as `{1}`, `{2}`, and so on.
+
+- `{1}` — first argument word
+- `{2}` — second argument word
+- `{1+}` — first argument and all following words joined with spaces
+
+```text
+/so /shoutout {1} — Check out {1} at https://twitch.tv/{1}!
+```
+
+Typing `/so mychannel` expands to:
+
+```text
+/shoutout mychannel — Check out mychannel at https://twitch.tv/mychannel!
+```
+
+<Note>
+`{channel}`, `{user}`, `{msg-id}`, and `{message}` are older variable names that still work but are deprecated. Prefer `{channel.name}`, `{user.name}`, `{msg.id}`, and `{msg.text}` instead.
+</Note>
+
+### Multi-word triggers
+
+Custom command names can contain spaces, allowing triggers like `/time out`. Chatterino7 resolves the longest matching trigger first.
+
+### Escaping braces
+
+To include a literal `{` in a command body, write `{{`:
+
+```text
+/example {{not a variable}}
+```
+
+This sends the literal text `{not a variable}`.

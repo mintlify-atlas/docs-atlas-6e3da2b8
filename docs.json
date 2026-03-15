@@ -1,122 +1,143 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Chatterino7",
+  "theme": "maple",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#6441a5",
+    "light": "#9b72cf",
+    "dark": "#3a2460"
   },
   "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/SevenTV/chatterino7"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/SevenTV/chatterino7"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Getting Started",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Overview",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "whats-new"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Installation",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "installation/windows",
+              "installation/macos",
+              "installation/linux",
+              "installation/freebsd"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Building from Source",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "building/overview",
+              "building/windows",
+              "building/macos",
+              "building/linux",
+              "building/freebsd"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Features",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "7TV Integration",
             "pages": [
-              "api-reference/introduction"
+              "features/seventv-overview",
+              "features/name-paints",
+              "features/personal-emotes",
+              "features/animated-avatars",
+              "features/badges"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Chat & Messaging",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "features/splits",
+              "features/commands",
+              "features/highlights",
+              "features/filters",
+              "features/hotkeys"
+            ]
+          },
+          {
+            "group": "Moderation",
+            "pages": [
+              "features/moderation",
+              "features/automod",
+              "features/ignores"
+            ]
+          },
+          {
+            "group": "Customization",
+            "pages": [
+              "features/themes",
+              "features/notifications",
+              "features/logging"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Plugins",
+        "groups": [
+          {
+            "group": "Introduction",
+            "pages": [
+              "plugins/overview",
+              "plugins/structure",
+              "plugins/permissions"
+            ]
+          },
+          {
+            "group": "Lua API Reference",
+            "pages": [
+              "plugins/api/logging",
+              "plugins/api/commands",
+              "plugins/api/channels",
+              "plugins/api/http",
+              "plugins/api/websocket",
+              "plugins/api/messages",
+              "plugins/api/json"
+            ]
+          },
+          {
+            "group": "TypeScript Support",
+            "pages": [
+              "plugins/typescript"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Contributing",
+        "groups": [
+          {
+            "group": "Development",
+            "pages": [
+              "contributing/guidelines",
+              "contributing/code-style",
+              "contributing/testing",
+              "contributing/releases"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

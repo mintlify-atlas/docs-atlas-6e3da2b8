@@ -1,0 +1,97 @@
+---
+title: "What's new"
+description: "Version history and changelog for Chatterino7. Covers 7TV-specific changes merged from the SevenTV/chatterino7 fork."
+---
+
+This page covers changes specific to Chatterino7. For upstream Chatterino2 changes merged into each release, see the [Chatterino2 changelog](https://github.com/Chatterino/chatterino2/blob/master/CHANGELOG.md).
+
+<Note>
+  If a bug affects a 7TV feature (paints, personal emotes, avatars), report it at [SevenTV/chatterino7](https://github.com/SevenTV/chatterino7/issues). For general Twitch or UI issues, report at [Chatterino/chatterino2](https://github.com/Chatterino/chatterino2/issues).
+</Note>
+
+## Recent releases
+
+<AccordionGroup>
+
+  <Accordion title="Unversioned (upcoming)">
+    **Minor**
+    - Added "Open 7TV user in browser" and "Open channel in browser" options when right-clicking the profile picture in a usercard.
+  </Accordion>
+
+  <Accordion title="7.5.5-beta.1">
+    **Major**
+    - Added experimental Kick support.
+
+    **Minor**
+    - Increased radius of drop-shadows in paints to match the browser extension.
+
+    **Bugfixes**
+    - Fixed 7TV users with multiple connections to the same platform not having cosmetics applied on all connected accounts.
+    - Fixed URL paints on mentions not being scaled correctly in high-dpi settings.
+
+    **Developer / infrastructure**
+    - Bumped Qt to 6.9.3 on Windows and macOS due to CVE-2025-10728 and CVE-2025-10729.
+    - Updated the macOS Homebrew bottles on x86_64 to Sonoma (Ventura reached end-of-life 2025-09-15).
+    - Version comparisons between `7.x.x` and `2.y.y` are now treated as upgrades.
+    - Chatterino7 now provides ARM builds for Windows (experimental).
+  </Accordion>
+
+  <Accordion title="7.5.4">
+    **Bugfixes**
+    - Fixed certain paints (e.g., "Coder Socks") not displaying correctly.
+    - Fixed emojis being inserted from shortcodes between words without spaces, which prevented some 7TV emotes from being sent.
+
+    **Developer / infrastructure**
+    - Bumped OpenSSL on Windows to 3.5.2.
+  </Accordion>
+
+  <Accordion title="7.5.4-beta.1">
+    **Bugfixes**
+    - Fixed paints not appearing as they do in the browser extension.
+
+    **Developer / infrastructure**
+    - Bumped Qt to 6.9.1 on Windows and macOS.
+  </Accordion>
+
+  <Accordion title="7.5.3">
+    **Developer / infrastructure**
+    - Downgrades are no longer treated as updates.
+    - The `v3` endpoint is now used to check for updates.
+  </Accordion>
+
+  <Accordion title="7.5.3-beta.1">
+    **Minor**
+    - Added 7TV Discord link to the about section.
+    - Changed the commit link to point to SevenTV/Chatterino7.
+
+    **Bugfixes**
+    - Fixed special 7TV emote sets not being applied and not showing in chat.
+    - Opening a user's avatar from a usercard in the browser now opens the correct URL.
+    - If a user never set a 7TV avatar, the usercard no longer shows a button to switch between Twitch and 7TV avatars.
+    - Fixed mentions becoming unclickable when a user updated or announced their personal emotes.
+
+    **Developer / infrastructure**
+    - Updated kimageformats to v6.11.0, Boost to 1.87.0, and OpenSSL to 3.4.1.
+    - On Windows, Chatterino7 now uses `SevenTV.Chatterino7` as its Application User Model ID (AUMID).
+  </Accordion>
+
+  <Accordion title="7.5.2-beta.1">
+    **Minor**
+    - Added setting to disable animated 7TV badges.
+    - Added setting to disable 7TV paint shadows.
+
+    **Bugfixes**
+    - Paints are no longer rendered in system messages.
+    - Emotes now properly use the AVIF version if it is available and supported.
+    - Fixed 7TV avatars not loading in the usercard.
+
+    **Developer / infrastructure**
+    - Changed macOS `CFBundleIdentifier` from `com.chatterino` to `app.7tv.chatterino7`.
+    - A single universal app is now released for macOS (supports Intel and Apple Silicon).
+    - The minimum required macOS version is now 13.0 Ventura.
+    - Updated Conan version used in CI to 2.4.
+    - Updated `libavif` to 1.0.4, Boost to 1.85, and OpenSSL to 3.2.2 on Windows.
+    - The client version is now sent through URL parameters to the 7TV EventAPI.
+  </Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,152 @@
+---
+title: "Keyboard shortcuts"
+description: "View and customize every keyboard shortcut in Chatterino7 across four configurable categories."
+---
+
+Chatterino7 has a fully configurable hotkey system. Every default keybinding can be changed, and you can add additional bindings for any action. Hotkeys are organized into four categories based on where they apply.
+
+## Configuring hotkeys
+
+<Steps>
+  <Step title="Open Settings">
+    Press `Ctrl+P` to open Settings.
+  </Step>
+  <Step title="Navigate to Keyboard shortcuts">
+    Click **Keyboard shortcuts** in the left sidebar.
+  </Step>
+  <Step title="Edit a hotkey">
+    Double-click any row to edit its key sequence. Enter the new key combination and click **Save**.
+  </Step>
+  <Step title="Add a custom binding">
+    Click **Add** to create a new hotkey entry. Select the category, action, and key sequence.
+  </Step>
+  <Step title="Reset to defaults">
+    Click **Reset to defaults** to restore all hotkeys to their built-in values.
+  </Step>
+</Steps>
+
+<Warning>
+Renaming or deleting a hotkey that shares a name with a default can cause the default to be re-added on next launch. If you want to disable a default keybinding, clear its key sequence rather than deleting the entry.
+</Warning>
+
+## Category: Window
+
+These hotkeys apply to the main Chatterino7 window.
+
+| Action | Default shortcut |
+|---|---|
+| Open Settings | `Ctrl+P` |
+| Create a new split | `Ctrl+T` |
+| New tab | `Ctrl+Shift+T` |
+| Remove current tab | `Ctrl+Shift+W` |
+| Select tab 1–8 | `Ctrl+1` – `Ctrl+8` |
+| Select last tab | `Ctrl+9` |
+| Next tab | `Ctrl+Tab` |
+| Previous tab | `Ctrl+Shift+Tab` |
+| New popup (focused split) | `Ctrl+N` |
+| New popup (entire tab) | `Ctrl+Shift+N` |
+| Zoom in | `Ctrl++` |
+| Zoom out | `Ctrl+-` |
+| Reset zoom | `Ctrl+0` |
+| Reopen closed split | `Ctrl+G` |
+| Open quick switcher | `Ctrl+K` |
+| Toggle tab visibility | `Ctrl+U` |
+| Toggle local R9K | `Ctrl+H` |
+| Open account selector | (configurable) |
+| Quit Chatterino | (configurable) |
+
+## Category: Split
+
+These hotkeys apply to the currently focused split.
+
+| Action | Default shortcut |
+|---|---|
+| Change channel | `Ctrl+R` |
+| Close split | `Ctrl+W` |
+| Search current channel | `Ctrl+F` |
+| Search all channels | `Ctrl+Shift+F` |
+| Reconnect | `Ctrl+F5` |
+| Reload emotes | `F5` |
+| Create a Twitch clip | `Alt+X` |
+| Focus split left | `Alt+Left` |
+| Focus split right | `Alt+Right` |
+| Focus split up | `Alt+Up` |
+| Focus split down | `Alt+Down` |
+| Scroll page up | `PgUp` |
+| Scroll page down | `PgDown` |
+| Scroll to top | `Ctrl+Home` |
+| Scroll to bottom | `Ctrl+End` |
+| Show debug popup | `F10` |
+| New overlay popup | `Ctrl+Alt+N` |
+| Toggle overlay click-through | `Ctrl+Shift+U` |
+| Open channel in browser | (configurable) |
+| Open stream in Streamlink | (configurable) |
+| Open viewer list | (configurable) |
+| Set channel live notification | (configurable) |
+| Toggle moderation mode | (configurable) |
+| Set highlight sounds | (configurable) |
+| Pick filters | (configurable) |
+| Run a command | (configurable) |
+| Open subscription page | (configurable) |
+
+<Note>
+On macOS, `Alt+Arrow` split focus shortcuts are not registered by default because macOS uses those combinations at the system level. You can add them manually in Settings → Keyboard shortcuts.
+</Note>
+
+## Category: Split input box
+
+These hotkeys apply when the text input box in a split is focused.
+
+| Action | Default shortcut |
+|---|---|
+| Send message | `Enter` or `Shift+Enter` |
+| Send and keep input | `Ctrl+Enter` or `Ctrl+Shift+Enter` |
+| Previous sent message | `Up` |
+| Next sent message | `Down` |
+| Go to start of input | `Home` |
+| Go to end of input | `End` |
+| Go to start with selection | `Shift+Home` |
+| Go to end with selection | `Shift+End` |
+| Open emote picker | `Ctrl+E` |
+| Clear message | (configurable) |
+| Copy | (configurable) |
+| Paste | (configurable) |
+| Undo | (configurable) |
+| Redo | (configurable) |
+| Select all | (configurable) |
+| Select word | (configurable) |
+
+## Category: Popup windows
+
+These hotkeys apply inside popup windows (usercard, reply thread, etc.).
+
+| Action | Default shortcut |
+|---|---|
+| Close popup | `Escape` |
+| Select tab 1–8 | `Ctrl+1` – `Ctrl+8` |
+| Select last tab | `Ctrl+9` |
+| Next tab | `Ctrl+Tab` |
+| Previous tab | `Ctrl+Shift+Tab` |
+| Scroll page up | `PgUp` |
+| Scroll page down | `PgDown` |
+| Confirm | `Enter` |
+| Cancel | `Escape` |
+| Focus search box | `Ctrl+F` |
+| Execute moderation action | (configurable) |
+| Pin window | (configurable) |
+
+## Running commands with a hotkey
+
+The **Run a command** action in the Split category lets you bind a key sequence to any custom command you have defined in Settings → Commands.
+
+<Steps>
+  <Step title="Create a command">
+    Define a custom command in **Settings → Commands**. For example, `/gg` expands to `gg everyone!`.
+  </Step>
+  <Step title="Add a hotkey">
+    In **Settings → Keyboard shortcuts**, add a new hotkey in the **Split** category with the action **Run a command**.
+  </Step>
+  <Step title="Set the command argument">
+    In the argument field, enter the command trigger exactly as you named it (for example `/gg`).
+  </Step>
+</Steps>

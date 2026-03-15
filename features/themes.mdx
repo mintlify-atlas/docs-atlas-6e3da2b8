@@ -1,0 +1,249 @@
+---
+title: "Themes and appearance"
+description: "Switch between built-in themes, create custom themes with JSON, and adjust fonts, zoom level, and high-DPI scaling in Chatterino7."
+---
+
+Chatterino7 gives you full control over its appearance through built-in themes, a custom JSON theme format, font settings, and a zoom level that scales the entire UI.
+
+## Selecting a theme
+
+Open **Settings → General** and use the **Theme** dropdown to choose from the available themes.
+
+Built-in themes:
+
+| Theme | Description |
+|---|---|
+| **Dark** | Dark background with light text (default). |
+| **Black** | Higher-contrast dark variant. |
+| **Light** | Light background with dark text. |
+| **White** | Higher-contrast light variant. |
+| **System** | Follows the OS light/dark preference (requires Qt 6.5 or later). |
+
+When **System** is selected, you can independently set a **Dark system theme** and a **Light system theme** to control which theme is used in each OS mode.
+
+## Zoom and scale
+
+The **Zoom** dropdown in **Settings → General** sets a global UI scale factor. Available values range from `0.5x` to `4x`, with `Default` (1x) as the baseline.
+
+You can also zoom in and out at runtime using keyboard shortcuts:
+
+| Action | Shortcut |
+|---|---|
+| Zoom in | `Ctrl++` |
+| Zoom out | `Ctrl+-` |
+| Reset zoom | `Ctrl+0` |
+
+<Tip>
+On high-DPI displays, set Zoom to `1.4x` or `1.6x` for comfortable text size without changing your OS scaling settings.
+</Tip>
+
+## Font settings
+
+In **Settings → General**, the font widget lets you configure:
+
+- **Font family** — any font installed on your system.
+- **Font size** — point size for chat messages.
+- **Font weight** — normal or bold, plus a **Username font weight** option (`50`, `Default`, `75`, `100`) for emphasis on usernames.
+
+Changes take effect immediately without restarting.
+
+## Tab layout
+
+Under **Settings → General**, the **Tab layout** dropdown controls where the tab bar appears: **Top**, **Left**, **Right**, or **Bottom**.
+
+**Tab visibility** lets you show all tabs or only tabs where the channel is currently live.
+
+## Custom themes
+
+You can create your own theme by writing a JSON file and placing it in the `Themes` directory inside Chatterino7's data folder.
+
+### Theme file location
+
+<Tabs>
+  <Tab title="Windows">
+    ```text
+    %APPDATA%\Chatterino2\Themes\
+    ```
+  </Tab>
+  <Tab title="macOS">
+    ```text
+    ~/Library/Application Support/Chatterino/Themes/
+    ```
+  </Tab>
+  <Tab title="Linux">
+    ```text
+    ~/.local/share/Chatterino/Themes/
+    ```
+  </Tab>
+  <Tab title="Portable">
+    ```text
+    <app directory>/Themes/
+    ```
+    Applies when a `portable` file exists next to the Chatterino7 executable.
+  </Tab>
+</Tabs>
+
+After placing your `.json` file in this directory, Chatterino7 picks it up on next launch (or you can run `/c2-theme-autoreload` in any split to reload themes without restarting).
+
+### Theme JSON structure
+
+A theme file must contain two top-level keys: `colors` and `metadata`.
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/Chatterino/chatterino2/master/docs/ChatterinoTheme.schema.json",
+  "metadata": {
+    "iconTheme": "light"
+  },
+  "colors": {
+    ...
+  }
+}
+```
+
+#### metadata
+
+| Field | Values | Description |
+|---|---|---|
+| `iconTheme` | `"light"` or `"dark"` | Which icon set to use. Use `"light"` icons on dark backgrounds, `"dark"` icons on light backgrounds. |
+| `fallbackTheme` | `"White"`, `"Light"`, `"Dark"`, or `"Black"` | Built-in theme used as a fallback for any color not defined in your file. Defaults to `"Dark"`. |
+
+#### Color format
+
+All color values accept any of these Qt color formats:
+
+| Format | Example | Notes |
+|---|---|---|
+| `#RGB` | `#f80` | 3-digit hex shorthand |
+| `#RRGGBB` | `#ff8800` | Standard 6-digit hex |
+| `#AARRGGBB` | `#ccff8800` | 8-digit hex with alpha in the **first** two digits (not CSS order) |
+| SVG color name | `"cornflowerblue"` | Any [SVG 1.1 named color](https://www.w3.org/TR/SVG11/types.html#ColorKeywords) |
+| `"transparent"` | `"transparent"` | Fully transparent |
+
+<Warning>
+The alpha channel in `#AARRGGBB` format is the **first** two digits, not the last. This differs from CSS `#RRGGBBAA` notation.
+</Warning>
+
+#### colors.window
+
+Controls the application window background and default text.
+
+```json
+"window": {
+  "background": "#1a1a2e",
+  "text": "#eaeaea"
+}
+```
+
+#### colors.splits
+
+Controls the split (chat pane) appearance.
+
+```json
+"splits": {
+  "background": "#16213e",
+  "messageSeperator": "#333355",
+  "resizeHandle": "#6441a5",
+  "resizeHandleBackground": "#3a2460",
+  "dropPreview": "#80ffffff",
+  "dropPreviewBorder": "#ffffff",
+  "dropTargetRect": "#40ffffff",
+  "dropTargetRectBorder": "#ccffffff",
+  "header": {
+    "background": "#0f3460",
+    "border": "#1a1a2e",
+    "focusedBackground": "#6441a5",
+    "focusedBorder": "#9b72cf",
+    "text": "#cccccc",
+    "focusedText": "#ffffff"
+  },
+  "input": {
+    "background": "#0d0d1a",
+    "text": "#eaeaea"
+  }
+}
+```
+
+#### colors.messages
+
+Controls message rendering in the chat view.
+
+```json
+"messages": {
+  "backgrounds": {
+    "regular": "#16213e",
+    "alternate": "#1a2540"
+  },
+  "disabled": "#80808080",
+  "selection": "#406441a5",
+  "highlightAnimationStart": "#ffb347",
+  "highlightAnimationEnd": "transparent",
+  "textColors": {
+    "regular": "#eaeaea",
+    "system": "#888888",
+    "caret": "#ffffff",
+    "link": "#9b72cf",
+    "chatPlaceholder": "#555555"
+  }
+}
+```
+
+#### colors.tabs
+
+Controls the tab bar appearance with states for regular, selected, highlighted (mention), and new-message tabs.
+
+```json
+"tabs": {
+  "dividerLine": "#333355",
+  "liveIndicator": "#ff4500",
+  "rerunIndicator": "#f0a000",
+  "regular": {
+    "backgrounds": { "regular": "#1a1a2e", "hover": "#2a2a4e", "unfocused": "#111122" },
+    "line": { "regular": "transparent", "hover": "transparent", "unfocused": "transparent" },
+    "text": "#999999"
+  },
+  "selected": {
+    "backgrounds": { "regular": "#6441a5", "hover": "#7452b6", "unfocused": "#3a2460" },
+    "line": { "regular": "#9b72cf", "hover": "#9b72cf", "unfocused": "#6441a5" },
+    "text": "#ffffff"
+  },
+  "highlighted": {
+    "backgrounds": { "regular": "#3a2460", "hover": "#4a3070", "unfocused": "#2a1a50" },
+    "line": { "regular": "#ff4500", "hover": "#ff4500", "unfocused": "#cc3300" },
+    "text": "#ff9977"
+  },
+  "newMessage": {
+    "backgrounds": { "regular": "#1a1a2e", "hover": "#2a2a4e", "unfocused": "#111122" },
+    "line": { "regular": "#6441a5", "hover": "#6441a5", "unfocused": "#3a2460" },
+    "text": "#cccccc"
+  }
+}
+```
+
+#### colors.scrollbars
+
+```json
+"scrollbars": {
+  "background": "#1a1a2e",
+  "thumb": "#6441a5",
+  "thumbSelected": "#9b72cf"
+}
+```
+
+#### colors.accent
+
+A single color used for accent elements throughout the UI:
+
+```json
+"accent": "#6441a5"
+```
+
+### Validating your theme
+
+The theme JSON schema is available at `docs/ChatterinoTheme.schema.json` in the Chatterino7 repository. Add the `$schema` key to your file to get validation and autocompletion in editors that support JSON Schema (VS Code, JetBrains IDEs, etc.):
+
+```json
+"$schema": "https://raw.githubusercontent.com/Chatterino/chatterino2/master/docs/ChatterinoTheme.schema.json"
+```
+
+The `fallbackTheme` in `metadata` fills in any color not defined in your file, so you do not need to specify every field to create a functional theme.

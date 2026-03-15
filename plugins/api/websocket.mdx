@@ -1,0 +1,91 @@
+---
+title: "WebSocket API"
+description: "Open and manage WebSocket connections from a Chatterino7 plugin using c2.WebSocket."
+---
+
+The WebSocket API lets your plugin maintain persistent real-time connections to external servers.
+
+## `c2.WebSocket.new(url[, options])`
+
+Creates and immediately connects to a WebSocket server. The connection is established asynchronously.
+
+<ParamField path="url" type="string" required>
+  The WebSocket server URL. Must begin with `wss://` or `ws://`.
+</ParamField>
+
+<ParamField path="options" type="table">
+  Optional configuration table. All keys are optional.
+
+  <Expandable title="options fields">
+    <ResponseField name="headers" type="table&lt;string, string&gt;">
+      Additional headers to include in the WebSocket handshake. Any headers specified here overwrite the defaults Chatterino sets.
+    </ResponseField>
+    <ResponseField name="on_open" type="function()">
+      Called when the WebSocket handshake completes successfully.
+    </ResponseField>
+    <ResponseField name="on_text" type="function(data: string)">
+      Handler for incoming text messages.
+    </ResponseField>
+    <ResponseField name="on_binary" type="function(data: string)">
+      Handler for incoming binary messages. The data may not be valid UTF-8.
+    </ResponseField>
+    <ResponseField name="on_close" type="function()">
+      Called when the connection is closed, including when the initial connection attempt fails.
+    </ResponseField>
+  </Expandable>
+</ParamField>
+
+The returned `WebSocket` object has writable properties `on_open`, `on_text`, `on_binary`, and `on_close`. You can set them either in the constructor or after creation.
+
+## WebSocket methods
+
+### `WebSocket:send_text(data)`
+
+Sends a text message to the server. If the connection is not yet established, the message is queued and sent once the connection opens.
+
+<ParamField path="data" type="string" required>
+  The text to send.
+</ParamField>
+
+### `WebSocket:send_binary(data)`
+
+Sends a binary message to the server. If not yet connected, the message is queued.
+
+<ParamField path="data" type="string" required>
+  The binary data to send.
+</ParamField>
+
+### `WebSocket:close()`
+
+Closes the WebSocket connection.
+
+## Example
+
+```lua
+local ws = c2.WebSocket.new("wss://echo.websocket.org",
+    -- options table is optional
+    {
+        on_open = function()
+            print("Connection established")
+        end,
+        on_close = function()
+            print("Connection closed")
+        end
+    }
+)
+
+-- handlers can also be set after construction
+ws.on_text = function(data)
+    print("Got text: " .. data)
+end
+
+ws:send_text("Hello, World!")
+```
+
+## Message queuing
+
+Calls to `send_text()` or `send_binary()` before the connection is open are queued automatically. They are delivered in order once the WebSocket handshake completes.
+
+<Note>
+  The `on_close` handler is also invoked when the initial connection fails, not only when a previously open connection closes.
+</Note>

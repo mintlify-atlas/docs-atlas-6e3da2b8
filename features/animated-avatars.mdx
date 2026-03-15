@@ -1,0 +1,36 @@
+---
+title: "Animated Avatars"
+description: "Chatterino7 displays animated 7TV profile pictures in usercards, with a button to switch between Twitch and 7TV avatars."
+---
+
+7TV allows users to set an animated profile picture separate from their Twitch avatar. Chatterino7 surfaces this avatar in the **usercard** — the popup that appears when you click a username in chat.
+
+## Where animated avatars appear
+
+Animated 7TV avatars are shown in the usercard profile picture area. When you click a username in chat, the usercard opens and loads the user's avatar. If the user has set a 7TV avatar, it is displayed animated (where the image format supports animation, such as GIF or AVIF).
+
+## Switching between Twitch and 7TV avatars
+
+The usercard shows a **toggle button** that lets you switch the displayed avatar between the user's Twitch profile picture and their 7TV animated avatar.
+
+<Note>
+  The toggle button is only shown if the user has actually set a 7TV avatar. If a user has never uploaded a 7TV profile picture, the button does not appear and only the Twitch avatar is shown. This behavior was corrected in **7.5.3-beta.1**.
+</Note>
+
+## Opening the avatar in a browser
+
+Right-clicking the profile picture in the usercard gives you the option **Open 7TV user in browser**, which opens the user's 7TV profile page at `https://7tv.app/users/<id>`. This opens the correct 7TV URL rather than a Twitch profile link.
+
+<Note>
+  A bug where opening the avatar in the browser navigated to the wrong URL was fixed in **7.5.3-beta.1**. A further option, "Open channel in browser" (same as left-clicking the profile picture), was added in the unversioned/upcoming release.
+</Note>
+
+## Avatar loading
+
+Avatars are fetched lazily when a usercard is opened. A fix in **7.5.2-beta.1** resolved an issue where 7TV avatars failed to load entirely in the usercard.
+
+## Settings reference
+
+| Setting | Location | Description |
+|---------|----------|-------------|
+| Show 7TV avatar in usercard | **Settings → 7TV** | Controls whether the 7TV avatar is fetched and shown in usercards. |

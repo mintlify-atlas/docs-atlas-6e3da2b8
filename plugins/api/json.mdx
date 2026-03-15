@@ -1,0 +1,139 @@
+---
+title: "JSON API"
+description: "Parse and stringify JSON in Chatterino7 plugins using the built-in chatterino.json module."
+---
+
+Chatterino bundles a `chatterino.json` module for working with JSON data. Load it with `require`:
+
+```lua
+local json = require('chatterino.json')
+```
+
+No permissions are required to use this module.
+
+## `json.parse(string[, options])`
+
+Parses a JSON string and returns a Lua value. Raises an error if the input is invalid JSON.
+
+<ParamField path="string" type="string" required>
+  The JSON string to parse.
+</ParamField>
+
+<ParamField path="options" type="table">
+  Optional parsing options.
+
+  <Expandable title="options fields">
+    <ResponseField name="allow_comments" type="boolean">
+      Allow C++ style comments in the JSON: `/* block */` and `// line`.
+    </ResponseField>
+    <ResponseField name="allow_trailing_commas" type="boolean">
+      Allow trailing commas in objects and arrays: `[1, 2,]`.
+    </ResponseField>
+  </Expandable>
+</ParamField>
+
+### Examples
+
+```lua
+local json = require('chatterino.json')
+
+-- Basic parse
+local parsed = json.parse('{"foo": 1}')
+-- parsed = { foo = 1 }
+
+-- Parse with error handling
+local ok, result = pcall(json.parse, 'invalid input')
+-- ok = false, result = "Failed to parse JSON: syntax error..."
+
+-- Parse with options
+local ok, result = pcall(json.parse, '{"foo": 1 /* foo */ }', { allow_comments = true })
+-- ok = true, result = { foo = 1 }
+```
+
+<Warning>
+  Use `pcall` when parsing untrusted or user-provided input. `json.parse` raises an error on invalid JSON rather than returning `nil`.
+</Warning>
+
+## `json.stringify(value[, options])`
+
+Converts a Lua value to a JSON string. Only tables, strings, numbers, and booleans are supported.
+
+<ParamField path="value" type="any" required>
+  The Lua value to serialize.
+</ParamField>
+
+<ParamField path="options" type="table">
+  Optional serialization options.
+
+  <Expandable title="options fields">
+    <ResponseField name="pretty" type="boolean">
+      Format the output with newlines and indentation.
+    </ResponseField>
+    <ResponseField name="indent_char" type="string">
+      The character to use for indentation. Default: a space character.
+    </ResponseField>
+    <ResponseField name="indent_size" type="number">
+      Number of times `indent_char` is repeated per nesting level. Default: `4`.
+    </ResponseField>
+  </Expandable>
+</ParamField>
+
+### Behavior notes
+
+- **Empty tables** are serialized as JSON objects `{}`.
+- **Tables with only integer-keyed entries starting at 0** (e.g. `{ [0] = json.null }`) produce a JSON array `[]`.
+- **`nil` values in a table** (e.g. `{ foo = nil }`) are silently omitted — `{ foo = nil }` is identical to `{}`.
+- To represent JSON `null` explicitly, use `json.null`.
+
+### Examples
+
+```lua
+local json = require('chatterino.json')
+
+-- Basic stringify
+local str = json.stringify({ foo = 1, bar = nil, baz = json.null })
+-- '{"foo":1,"baz":null}'
+
+-- Pretty-print
+local str = json.stringify({ foo = 1 }, { pretty = true })
+-- {
+--     "foo": 1
+-- }
+
+-- Empty array (using the [0] = json.null trick)
+local str = json.stringify({ [0] = json.null })
+-- '[]'
+```
+
+## `json.null`
+
+A sentinel value representing JSON `null`. Use this when you need to distinguish a missing key from an explicit null.
+
+```lua
+local json = require('chatterino.json')
+
+local str = json.stringify({ foo = 1, bar = nil, baz = json.null })
+-- '{"foo":1,"baz":null}'
+
+local obj = json.parse(str)
+assert(obj.baz == json.null)
+assert(obj.baz ~= nil)
+```
+
+## Round-trip example
+
+```lua
+local json = require('chatterino.json')
+
+-- Parse a response from an HTTP request
+c2.HTTPRequest.create(c2.HTTPMethod.Get, "https://example.com/api")
+    :on_success(function(res)
+        local ok, data = pcall(json.parse, res:data())
+        if not ok then
+            c2.log(c2.LogLevel.Warning, "Failed to parse response:", data)
+            return
+        end
+        c2.log(c2.LogLevel.Info, "Got name:", data.name)
+    end)
+    :execute()
+```

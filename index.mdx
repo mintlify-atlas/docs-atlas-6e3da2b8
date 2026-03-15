@@ -1,97 +1,84 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Chatterino7"
+description: "A feature-rich Twitch chat client with 7TV cosmetics, personal emotes, name paints, and more."
 ---
 
-## Setting up
-
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Download" icon="download" href="/installation/windows">
+    Get Chatterino7 for Windows, macOS, Linux, or FreeBSD.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="What's New" icon="sparkles" href="/whats-new">
+    See the latest features and improvements in Chatterino7.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="7TV Features" icon="star" href="/features/seventv-overview">
+    Learn about name paints, personal emotes, and animated avatars.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Plugin API" icon="puzzle-piece" href="/plugins/overview">
+    Extend Chatterino7 with Lua plugins using the built-in API.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## What is Chatterino7?
 
-Everything you need to create world-class documentation.
+Chatterino7 is a fork of [Chatterino2](https://github.com/Chatterino/chatterino2) — a desktop chat client for Twitch. It adds exclusive features for [7TV](https://7tv.app) subscribers and users that aren't available upstream, while staying up to date with the latest Chatterino2 improvements.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+## Key features
 
-## Need inspiration?
+<CardGroup cols={2}>
+  <Card title="Name Paints" icon="palette" href="/features/name-paints">
+    Display your 7TV subscriber name paint in chat — gradients, shadows, and custom colors rendered natively.
+  </Card>
+  <Card title="Personal Emotes" icon="face-smile" href="/features/personal-emotes">
+    Use your own personal 7TV emote set in any channel you chat in.
+  </Card>
+  <Card title="Animated Avatars" icon="circle-user" href="/features/animated-avatars">
+    See animated 7TV profile pictures in usercards and chat.
+  </Card>
+  <Card title="4x Image Quality" icon="image" href="/features/seventv-overview">
+    High-resolution 4x emote images for 7TV and FrankerFaceZ.
+  </Card>
+  <Card title="Kick Support" icon="bolt" href="/features/splits">
+    Experimental support for Kick.com chat alongside Twitch.
+  </Card>
+  <Card title="Plugin System" icon="code" href="/plugins/overview">
+    Extend functionality with a Lua plugin system that has HTTP, WebSocket, and file I/O support.
+  </Card>
+  <Card title="Multi-platform" icon="desktop" href="/installation/windows">
+    Available for Windows (including ARM), macOS (universal), and Linux.
+  </Card>
+  <Card title="AVIF Support" icon="photo-film" href="/features/seventv-overview">
+    Native support for AVIF images where available for sharper emotes.
+  </Card>
+</CardGroup>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+## Get started
+
+<Steps>
+  <Step title="Download Chatterino7">
+    Head to the [releases page](https://github.com/SevenTV/chatterino7/releases/latest) and download the installer for your platform. Windows users can also install via [Chocolatey](https://chocolatey.org/packages/chatterino7).
+  </Step>
+  <Step title="Log in with Twitch">
+    Open Chatterino7 and go to **File → Settings → Accounts** to add your Twitch account.
+  </Step>
+  <Step title="Open a channel">
+    Click the **+** button in the split area or go to **View → Open channel** and type a channel name.
+  </Step>
+  <Step title="Enjoy 7TV cosmetics">
+    Your 7TV name paint, personal emotes, and animated avatar are automatically loaded if you have an active 7TV subscription.
+  </Step>
+</Steps>
+
+## Community
+
+<CardGroup cols={2}>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/SevenTV/chatterino7/issues">
+    Report bugs or request features specific to Chatterino7.
+  </Card>
+  <Card title="7TV Discord" icon="discord" href="https://discord.com/invite/7tv">
+    Join the 7TV community on Discord to chat, get support, and stay updated.
+  </Card>
+</CardGroup>
+
+<Note>
+  Issues with features not specific to 7TV (e.g., general Twitch features, UI bugs unrelated to 7TV cosmetics) should be reported in the [upstream Chatterino2 issue tracker](https://github.com/Chatterino/chatterino2/issues).
+</Note>

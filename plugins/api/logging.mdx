@@ -1,0 +1,93 @@
+---
+title: "Logging API"
+description: "Write messages to the Chatterino log from your plugin using c2.log and the print global."
+---
+
+Plugins can write messages to the Chatterino internal log at four severity levels. Log output appears in the Chatterino log viewer and is useful for debugging.
+
+## `c2.log(level, args...)`
+
+Writes a message to the Chatterino log. All arguments are converted to strings using `tostring()` and joined with a tab character.
+
+<ParamField path="level" type="c2.LogLevel" required>
+  The severity level. Use a value from the [`c2.LogLevel`](#c2loglevel) enum.
+</ParamField>
+
+<ParamField path="args..." type="any">
+  One or more values to log. Each value is converted to a string with `tostring()`.
+</ParamField>
+
+```lua
+c2.log(c2.LogLevel.Warning, "Hello, this should show up in the Chatterino log by default")
+
+c2.log(c2.LogLevel.Debug, "Hello world")
+-- Equivalent to: qCDebug(chatterinoLua) << "[pluginDirectory:Plugin Name]" << "Hello, world"
+```
+
+## `c2.LogLevel` enum
+
+Describes the log levels available to plugins. The numeric values behind each name may change — always use the named constants.
+
+| Level | When to use |
+|-------|-------------|
+| `c2.LogLevel.Debug` | Verbose output for development and debugging |
+| `c2.LogLevel.Info` | General informational messages |
+| `c2.LogLevel.Warning` | Non-fatal problems the user should be aware of |
+| `c2.LogLevel.Critical` | Serious errors |
+
+## `print(args...)`
+
+The global `print` function is an alias for `c2.log(c2.LogLevel.Debug, args...)`. It accepts the same arguments.
+
+```lua
+print("Hello from my plugin")  -- logs at Debug level
+```
+
+## Examples
+
+<CodeGroup>
+
+```lua Debug
+c2.log(c2.LogLevel.Debug, "Starting plugin initialization")
+```
+
+```lua Info
+c2.log(c2.LogLevel.Info, "Plugin loaded successfully, version 1.0.0")
+```
+
+```lua Warning
+c2.log(c2.LogLevel.Warning, "Config file not found, using defaults")
+```
+
+```lua Critical
+c2.log(c2.LogLevel.Critical, "Failed to connect:", err)
+```
+
+</CodeGroup>
+
+## Logging multiple values
+
+You can pass multiple arguments to `c2.log`. Each argument is converted with `tostring()` and separated by a tab:
+
+```lua
+c2.log(c2.LogLevel.Info, "Channel:", channel_name, "Message count:", count)
+```
+
+## Debugging with stack traces
+
+For detailed error information, combine `c2.log` with `debug.traceback`:
+
+```lua
+local function main()
+    c2.ThisDoesNotExistAndWillError()
+end
+
+local ok, result = xpcall(main, debug.traceback)
+if not ok then
+    print(result)
+end
+```
+
+<Note>
+  `debug.traceback` is the only function from Lua's `debug` library exposed to plugins. Other `debug.*` functions are not available.
+</Note>

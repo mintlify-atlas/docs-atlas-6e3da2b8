@@ -1,0 +1,70 @@
+---
+title: "Building overview"
+description: "Why and when to build Chatterino7 from source, plus a summary of prerequisites and CMake options."
+---
+
+Prebuilt binaries are available for Windows, macOS, and Linux. You may still want to build from source if you:
+
+- Are on FreeBSD (no prebuilt binaries are provided).
+- Want to build a distribution package that integrates with your system package manager.
+- Want to enable features not included in the official builds (such as Lua plugins).
+- Want to test unreleased changes or contribute a patch.
+
+## Platform guides
+
+<CardGroup cols={2}>
+  <Card title="Windows" icon="windows" href="/building/windows">
+    Build using CMake with Conan or vcpkg on Visual Studio 2022.
+  </Card>
+  <Card title="macOS" icon="apple" href="/building/macos">
+    Build using Homebrew dependencies and CMake.
+  </Card>
+  <Card title="Linux" icon="linux" href="/building/linux">
+    Build with distro packages and CMake across Ubuntu, Arch, Fedora, and more.
+  </Card>
+  <Card title="FreeBSD" icon="server" href="/building/freebsd">
+    Build using `pkg` dependencies and CMake on FreeBSD 14.0-RELEASE.
+  </Card>
+</CardGroup>
+
+## Prerequisites overview
+
+All platforms require:
+
+- **Git** — to clone the repository and its submodules.
+- **CMake** — the build system generator used across all platforms.
+- **Qt 6** — the minimum supported version is Qt 5.15.2, but Qt 6 is strongly recommended and used in CI. FreeBSD requires Qt 6.6.0 or later.
+- **Boost** — used throughout the codebase.
+- **OpenSSL** — required for HTTPS and WebSocket connections.
+
+Platform-specific toolchains (MSVC on Windows, Xcode on macOS, GCC/Clang on Linux/FreeBSD) and additional libraries are documented in each platform guide.
+
+## Cloning the repository
+
+Chatterino7 uses Git submodules. Clone with submodules in a single command:
+
+```bash
+git clone --recurse-submodules https://github.com/SevenTV/chatterino7.git
+```
+
+Or, if you already cloned without `--recurse-submodules`:
+
+```bash
+git submodule update --init --recursive
+```
+
+## CMake options
+
+These options are passed to `cmake` at configure time (e.g., `cmake -DOPTION=VALUE ..`).
+
+| Option | Default | Description |
+|---|---|---|
+| `CHATTERINO_PLUGINS` | `OFF` | Enable the Lua plugin system. Requires LuaJIT or Lua. |
+| `CHATTERINO_NO_AVIF_PLUGIN` | `OFF` | Disable the bundled AVIF image plugin. Use this if a static `libavif` is not available. Chatterino7 will fall back to `qavif.so` from kimageformats if installed. |
+| `CHATTERINO_SPELLCHECK` | `OFF` | Enable spellcheck support. |
+| `BUILD_WITH_QTKEYCHAIN` | `ON` | Use QtKeychain for secure credential storage. |
+| `SKIP_JSON_GENERATION` | `OFF` | Skip generating JSON EventSub implementation blobs (slow due to Python processing; useful on FreeBSD for faster builds). |
+
+<Note>
+  To enable Lua plugins, add `-DCHATTERINO_PLUGINS=ON` to your `cmake` configure command. The option is available on all platforms.
+</Note>

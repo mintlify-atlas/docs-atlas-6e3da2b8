@@ -1,0 +1,122 @@
+---
+title: Contribution guidelines
+description: How to contribute to Chatterino7, including branch conventions, pull request requirements, and where to report issues.
+---
+
+Chatterino7 is a fork of [Chatterino 2](https://github.com/Chatterino/chatterino2). Contributions are welcome for features and fixes specific to the fork. This page explains how to get your changes accepted.
+
+<Note>
+  Chatterino7 focuses on features not accepted upstream — primarily 7TV subscriber features. If your change is general enough to belong in Chatterino 2, consider contributing it upstream first.
+</Note>
+
+## Where to report issues
+
+Report issues in the correct repository:
+
+| Issue type | Where to report |
+| --- | --- |
+| Crashes or bugs related to 7TV features (paints, personal emotes, avatars) | [SevenTV/chatterino7 issues](https://github.com/SevenTV/chatterino7/issues) |
+| Bugs unrelated to 7TV features | [Chatterino/chatterino2 issues](https://github.com/Chatterino/chatterino2/issues) |
+
+If you don't have a GitHub account and want to report an issue or join the community, join the official [7TV Discord](https://discord.com/invite/7tv).
+
+## Before you start
+
+- Check whether the issue or feature already exists in the [open issues](https://github.com/SevenTV/chatterino7/issues) or [upstream issues](https://github.com/Chatterino/chatterino2/issues).
+- For significant changes, open an issue first to discuss the approach before writing code.
+- Read the [code style guide](/contributing/code-style) to understand formatting and C++ conventions.
+
+## Fork and branch
+
+<Steps>
+  <Step title="Fork the repository">
+    Fork [SevenTV/chatterino7](https://github.com/SevenTV/chatterino7) to your own GitHub account.
+  </Step>
+  <Step title="Clone your fork">
+    ```bash
+    git clone --recurse-submodules https://github.com/<your-username>/chatterino7.git
+    cd chatterino7
+    ```
+  </Step>
+  <Step title="Create a feature branch">
+    Always create a dedicated branch for your pull request. Do not use `master`, `main`, or `chatterino7` directly — this prevents problems when updating your branch after your PR is merged.
+
+    ```bash
+    git checkout -b my-feature-or-fix
+    ```
+  </Step>
+  <Step title="Make your changes">
+    Write your code following the [code style guide](/contributing/code-style). Make sure new functionality is covered by [tests](/contributing/testing) where applicable.
+  </Step>
+  <Step title="Push and open a pull request">
+    Push your branch to your fork and open a pull request against the `chatterino7` branch of `SevenTV/chatterino7`.
+  </Step>
+</Steps>
+
+## Branch naming conventions
+
+There is no strict branch naming requirement, but use descriptive names that communicate what the branch does:
+
+```
+fix/paint-shadow-scaling
+add/kick-support
+refactor/emote-controller
+```
+
+Avoid generic names like `fix`, `update`, or `changes`.
+
+## Pull request requirements
+
+When you open a pull request, fill in the PR template:
+
+- Summarize what you changed and why.
+- For bug fixes, include steps to reproduce the bug so reviewers can test the fix.
+- If the PR fixes a GitHub issue, add `Fixes #<number>` in the description to close it automatically.
+- Add co-author, tested-by, reported-by, reviewed-by, or parent-pr trailers at the bottom of the description where relevant.
+
+**Checklist before opening a PR:**
+
+- [ ] Code is formatted with `clang-format` (CI will fail if it is not)
+- [ ] New or changed behavior is covered by tests where applicable
+- [ ] The CHANGELOG has an entry under `## Unversioned`
+- [ ] The PR targets the correct base branch
+
+<Warning>
+  The CI runs `check-formatting`, `clang-tidy`, and `changelog-check` workflows automatically. If any of these fail, your PR cannot be merged until the failures are resolved.
+</Warning>
+
+## Changelog entries
+
+Every user-visible change needs an entry in `CHANGELOG.c7.md` under the `## Unversioned` section. Use one of these prefixes:
+
+| Prefix | When to use |
+| --- | --- |
+| `Major:` | Significant new features |
+| `Minor:` | Smaller features and improvements |
+| `Bugfix:` | Bug fixes |
+| `Dev:` | Internal changes with no user-visible effect |
+
+Include the PR number in parentheses at the end:
+
+```markdown
+- Minor: Added setting to disable 7TV paint shadows (#123)
+```
+
+## CI workflows
+
+The following workflows run on every pull request:
+
+| Workflow | Purpose |
+| --- | --- |
+| `build.yml` | Builds on Windows, Ubuntu, and macOS |
+| `check-formatting.yml` | Verifies `clang-format` compliance |
+| `clang-tidy.yml` | Runs static analysis |
+| `changelog-check.yml` | Ensures a changelog entry exists |
+| `test.yml` | Runs unit tests |
+| `lint.yml` | Runs additional linting checks |
+
+All workflows must pass before a PR can be merged.
+
+## Community
+
+For discussion, questions, and community support, join the [7TV Discord](https://discord.com/invite/7tv).

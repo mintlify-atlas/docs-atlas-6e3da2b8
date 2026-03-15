@@ -1,0 +1,84 @@
+---
+title: "7TV Integration"
+description: "Overview of all 7TV features in Chatterino7 — name paints, personal emotes, animated avatars, badges, and real-time updates via the 7TV EventAPI."
+---
+
+[7TV](https://7tv.app) is an emote platform for Twitch and Kick that also offers a suite of subscriber cosmetics. Chatterino7 integrates these features natively, so you see paints, personal emotes, animated avatars, and badges exactly as other 7TV users do — without any browser extension.
+
+## Features at a glance
+
+<CardGroup cols={2}>
+  <Card title="Name Paints" icon="palette" href="/features/name-paints">
+    Subscriber cosmetic that styles usernames with gradients, radial fills, image-based textures, and drop shadows.
+  </Card>
+  <Card title="Personal Emotes" icon="face-smile" href="/features/personal-emotes">
+    A per-user emote set usable in any channel. Changes sync in real time as the owner updates their set.
+  </Card>
+  <Card title="Animated Avatars" icon="circle-user" href="/features/animated-avatars">
+    Animated 7TV profile pictures shown in usercards, with a toggle between Twitch and 7TV avatars.
+  </Card>
+  <Card title="Badges" icon="award" href="/features/badges">
+    7TV subscriber and staff badges rendered in chat, with support for animated badge images.
+  </Card>
+</CardGroup>
+
+## Connecting your 7TV account
+
+Chatterino7 links your 7TV cosmetics automatically via your Twitch login. No separate 7TV login is required.
+
+<Steps>
+  <Step title="Open Settings">
+    Go to **File → Settings → Accounts** (or press **Ctrl+P** and search for Accounts).
+  </Step>
+  <Step title="Add your Twitch account">
+    Click **Add account** and log in with Twitch. Chatterino7 uses your Twitch identity to look up your 7TV profile.
+  </Step>
+  <Step title="Cosmetics load automatically">
+    Once logged in, your 7TV name paint, personal emote set, and animated avatar are fetched automatically. Other users' cosmetics are loaded as you open channels.
+  </Step>
+</Steps>
+
+<Note>
+  You need an active 7TV subscription to display name paints and personal emotes. Badges are awarded separately by 7TV. Animated avatars require you to have set a 7TV profile picture.
+</Note>
+
+## 7TV EventAPI — real-time updates
+
+Chatterino7 maintains a persistent WebSocket connection to the **7TV EventAPI**. This connection handles live updates so you never need to restart or manually refresh to see cosmetic changes:
+
+- When a channel editor adds or removes an emote from a channel emote set, the change appears instantly in chat.
+- When a user updates their personal emote set, the new set is pushed to all connected clients.
+- When 7TV assigns or revokes a paint or badge entitlement, the change is reflected immediately without restarting.
+
+The client subscribes per-channel as you open splits, and unsubscribes when you close them, keeping the connection efficient. The EventAPI heartbeat interval is 25 seconds; Chatterino7 reconnects automatically if the connection drops.
+
+## High-resolution and AVIF image support
+
+Chatterino7 requests **4x image variants** from 7TV and FrankerFaceZ when they are available, so emotes look sharp on HiDPI and Retina displays.
+
+In addition, Chatterino7 supports the **AVIF image format**. AVIF provides better compression and quality than WebP or PNG, particularly for animated emotes. When a 7TV emote offers an AVIF variant and your build includes AVIF support, Chatterino7 selects it automatically.
+
+<Tip>
+  If your Linux build does not include a static `libavif`, install `qavif.so` from [kimageformats](https://invent.kde.org/frameworks/kimageformats) and Chatterino7 will pick it up at runtime.
+</Tip>
+
+## Platform support
+
+All 7TV cosmetics work on both **Twitch** and **Kick** channels. Paints, personal emotes, and badges are tracked per platform — a user's Twitch and Kick accounts are each resolved independently against their 7TV profile.
+
+## Feature pages
+
+<CardGroup cols={2}>
+  <Card title="Name Paints" icon="palette" href="/features/name-paints">
+    Gradient, radial, and image-based username styling with drop-shadow support.
+  </Card>
+  <Card title="Personal Emotes" icon="face-smile" href="/features/personal-emotes">
+    Per-user emote sets available across every channel.
+  </Card>
+  <Card title="Animated Avatars" icon="circle-user" href="/features/animated-avatars">
+    Animated 7TV profile pictures in usercards.
+  </Card>
+  <Card title="Badges" icon="award" href="/features/badges">
+    7TV subscriber and staff badges with animation support.
+  </Card>
+</CardGroup>
