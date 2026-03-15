@@ -1,0 +1,159 @@
+{
+  "projectType": "saas",
+  "projectName": "Chatterino7",
+  "projectDescription": "A feature-rich Twitch chat client forked from Chatterino2, adding 7TV subscriber cosmetics including name paints, personal emotes, animated avatars, and experimental Kick support.",
+  "theme": "maple",
+  "primaryColor": "#6441a5",
+  "lightColor": "#9b72cf",
+  "darkColor": "#3a2460",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "introduction",
+              "whats-new"
+            ]
+          },
+          {
+            "group": "Installation",
+            "pages": [
+              "installation/windows",
+              "installation/macos",
+              "installation/linux",
+              "installation/freebsd"
+            ]
+          },
+          {
+            "group": "Building from Source",
+            "pages": [
+              "building/overview",
+              "building/windows",
+              "building/macos",
+              "building/linux",
+              "building/freebsd"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Features",
+        "groups": [
+          {
+            "group": "7TV Integration",
+            "pages": [
+              "features/seventv-overview",
+              "features/name-paints",
+              "features/personal-emotes",
+              "features/animated-avatars",
+              "features/badges"
+            ]
+          },
+          {
+            "group": "Chat & Messaging",
+            "pages": [
+              "features/splits",
+              "features/commands",
+              "features/highlights",
+              "features/filters",
+              "features/hotkeys"
+            ]
+          },
+          {
+            "group": "Moderation",
+            "pages": [
+              "features/moderation",
+              "features/automod",
+              "features/ignores"
+            ]
+          },
+          {
+            "group": "Customization",
+            "pages": [
+              "features/themes",
+              "features/notifications",
+              "features/logging"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Plugins",
+        "groups": [
+          {
+            "group": "Introduction",
+            "pages": [
+              "plugins/overview",
+              "plugins/structure",
+              "plugins/permissions"
+            ]
+          },
+          {
+            "group": "Lua API Reference",
+            "pages": [
+              "plugins/api/logging",
+              "plugins/api/commands",
+              "plugins/api/channels",
+              "plugins/api/http",
+              "plugins/api/websocket",
+              "plugins/api/messages",
+              "plugins/api/json"
+            ]
+          },
+          {
+            "group": "TypeScript Support",
+            "pages": [
+              "plugins/typescript"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Contributing",
+        "groups": [
+          {
+            "group": "Development",
+            "pages": [
+              "contributing/guidelines",
+              "contributing/code-style",
+              "contributing/testing",
+              "contributing/releases"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "7TV name paints with gradient and shadow rendering",
+    "7TV personal emotes per user",
+    "7TV animated profile avatars in usercards",
+    "4x high-resolution image support for 7TV and FFZ emotes",
+    "Experimental Kick platform support",
+    "Lua plugin system with HTTP/WebSocket/file I/O APIs",
+    "Multi-platform support (Windows, macOS, Linux, FreeBSD, ARM)",
+    "AVIF image format support",
+    "Split-based multi-channel chat layout",
+    "BetterTTV, FrankerFaceZ, and 7TV emote integration"
+  ],
+  "publicApiSurface": [
+    "c2.log(level, args...)",
+    "c2.register_command(name, handler)",
+    "c2.register_callback(event_type, handler)",
+    "c2.current_account()",
+    "c2.Channel.by_name(name)",
+    "c2.Channel.by_twitch_id(id)",
+    "c2.HTTPRequest.create(method, url)",
+    "c2.WebSocket.new(url, options)",
+    "c2.Message.new(data)",
+    "require('chatterino.json')",
+    "c2.LogLevel enum",
+    "c2.ChannelType enum",
+    "c2.HTTPMethod enum",
+    "c2.MessageFlag enum",
+    "c2.EventType.CompletionRequested"
+  ]
+}
